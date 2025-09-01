@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace FinTracker.WebAPI.Entities;
+namespace FinTracker.DAL.Entities;
 
 public class QuoteEntity
 {

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace FinTracker.WebAPI.Entities;
+namespace FinTracker.DAL.Entities;
 
 public class UserEntity
 {
@@ -15,5 +15,5 @@ public class UserEntity
 
     public  ICollection<HistoryEntity>? History { get; set; }
 
-    public ICollection<HoldingsEntity>? Holdings { get; set; }
+    public ICollection<HoldingEntity>? Holdings { get; set; }
 }

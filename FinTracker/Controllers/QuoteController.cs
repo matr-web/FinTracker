@@ -1,4 +1,4 @@
-﻿using FinTracker.WebAPI.Entities;
+﻿using FinTracker.DAL.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FinTracker.Controllers;

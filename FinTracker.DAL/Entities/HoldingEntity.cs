@@ -1,6 +1,6 @@
-﻿namespace FinTracker.WebAPI.Entities;
+﻿namespace FinTracker.DAL.Entities;
 
-public class HoldingsEntity
+public class HoldingEntity
 {
     public int Id { get; set; }
 

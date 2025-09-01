@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace FinTracker.WebAPI.Entities;
+namespace FinTracker.DAL.Entities;
 
 public class HistoryEntity
 {
@@ -16,7 +16,7 @@ public class HistoryEntity
 
     public double Quantity { get; set; }
 
-    public double Value { get; set; }
+    public decimal Value { get; set; }
 
     public Currency Currency { get; set; }
 
@@ -24,9 +24,6 @@ public class HistoryEntity
 
     public string? Description { get; set; }
 
-    //modelBuilder.Entity<Person>()
-    //    .Property(p => p.BirthDate)
-    //    .HasColumnType("date"); // wymusi typ 'date' w SQL
     public DateOnly Date { get; set; } 
 
     public decimal? Profit { get; set; }

@@ -5,6 +5,10 @@ VisualStudioVersion = 17.13.35825.156
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinTracker.WebAPI", "FinTracker\FinTracker.WebAPI.csproj", "{E83B2478-3482-4AD0-88A0-0513CC9DE595}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinTracker.BLL", "FinTracker.BLL\FinTracker.BLL.csproj", "{59238BA7-EF06-4921-A09C-E0EAFA1EB5BE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinTracker.DAL", "FinTracker.DAL\FinTracker.DAL.csproj", "{39EA31FB-3C16-4770-AA61-25CBAFCD91A1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{E83B2478-3482-4AD0-88A0-0513CC9DE595}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E83B2478-3482-4AD0-88A0-0513CC9DE595}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E83B2478-3482-4AD0-88A0-0513CC9DE595}.Release|Any CPU.Build.0 = Release|Any CPU
+		{59238BA7-EF06-4921-A09C-E0EAFA1EB5BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59238BA7-EF06-4921-A09C-E0EAFA1EB5BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59238BA7-EF06-4921-A09C-E0EAFA1EB5BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59238BA7-EF06-4921-A09C-E0EAFA1EB5BE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{39EA31FB-3C16-4770-AA61-25CBAFCD91A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{39EA31FB-3C16-4770-AA61-25CBAFCD91A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{39EA31FB-3C16-4770-AA61-25CBAFCD91A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{39EA31FB-3C16-4770-AA61-25CBAFCD91A1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
