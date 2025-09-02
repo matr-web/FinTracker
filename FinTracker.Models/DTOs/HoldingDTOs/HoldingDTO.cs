@@ -1,6 +1,8 @@
-﻿namespace FinTracker.DAL.Entities;
+﻿using FinTracker.Models.DTOs.UserDTOs;
 
-public class HoldingEntity
+namespace FinTracker.Models.DTOs.HoldingDTOs;
+
+public class HoldingDTO
 {
     public int Id { get; set; }
 
@@ -10,5 +12,5 @@ public class HoldingEntity
 
     public int UserId { get; set; }
 
-    public UserEntity? User { get; set; }
+    public UserDTO? User { get; set; }
 }

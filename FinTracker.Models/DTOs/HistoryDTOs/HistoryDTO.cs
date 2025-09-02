@@ -1,8 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using FinTracker.DAL.Entities;
+using FinTracker.Models.DTOs.UserDTOs;
 
-namespace FinTracker.DAL.Entities;
+namespace FinTracker.Models.DTOs.HistoryDTOs;
 
-public class HistoryEntity
+public class HistoryDTO
 {
     public int Id { get; set; }
 
@@ -24,7 +25,7 @@ public class HistoryEntity
 
     public string? Description { get; set; }
 
-    public DateOnly Date { get; set; } 
+    public DateOnly Date { get; set; }
 
     public decimal? Profit { get; set; }
 
@@ -32,22 +33,7 @@ public class HistoryEntity
 
     public int UserId { get; set; }
 
-    public UserEntity? User { get; set; }
+    public UserDTO User { get; set; }
 
-    [NotMapped]
     public decimal? ROI => ROIBps / 100m; // 750 -> 7.5%
-}
-
-public enum Operation
-{
-    Buy,
-    Sell
-}
-
-public enum Currency
-{
-    PLN,
-    EUR,
-    USD,
-    GBP
 }

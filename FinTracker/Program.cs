@@ -25,7 +25,6 @@ if (app.Environment.IsDevelopment())
             .WithTitle("Test API")
             .WithTheme(ScalarTheme.DeepSpace)
             .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
-
     });
 }
 
