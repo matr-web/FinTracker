@@ -14,7 +14,7 @@ public class HoldingService : IHoldingService
         _dbContext = dbContext;
     }
 
-    public IEnumerable<HoldingDTO> GetHoldingsAsync(int userId)
+    public IEnumerable<HoldingDTO> GetHoldings(int userId)
     {
         return _dbContext.Holdings
              .Where(h => h.UserId == userId)

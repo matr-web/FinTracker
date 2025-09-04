@@ -7,7 +7,7 @@ public interface IHoldingService
     /// <summary>
     /// Get All Holdings for a given User.
     /// </summary>
-    IEnumerable<HoldingDTO> GetHoldingsAsync(int userId);
+    IEnumerable<HoldingDTO> GetHoldings(int userId);
 
     /// <summary>
     /// Add new Holding.
