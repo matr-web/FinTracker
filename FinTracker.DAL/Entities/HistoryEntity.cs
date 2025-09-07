@@ -10,21 +10,21 @@ public class HistoryEntity
 
     public string? Ticker { get; set; }
 
-    public required string AssetType { get; set; }
+    public AssetType AssetType { get; set; }
 
     public Operation Operation { get; set; }
 
     public double Quantity { get; set; }
 
-    public decimal Value { get; set; }
+    public decimal PricePerUnit { get; set; }
 
     public Currency Currency { get; set; }
 
-    public decimal CurrencyPrice { get; set; }
+    public decimal? CurrencyPrice { get; set; }
 
     public string? Description { get; set; }
 
-    public DateOnly Date { get; set; } 
+    public DateOnly? Date { get; set; } 
 
     public decimal? Profit { get; set; }
 
@@ -36,6 +36,13 @@ public class HistoryEntity
 
     [NotMapped]
     public decimal? ROI => ROIBps / 100m; // 750 -> 7.5%
+}
+
+public enum AssetType
+{
+    Stock,
+    ETF,
+    Bonds
 }
 
 public enum Operation

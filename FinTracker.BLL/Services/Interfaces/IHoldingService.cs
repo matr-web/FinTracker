@@ -10,6 +10,11 @@ public interface IHoldingService
     IEnumerable<HoldingDTO> GetHoldings(int userId);
 
     /// <summary>
+    /// Get Holding with given Id.
+    /// </summary>
+    Task<HoldingDTO?> GetHoldingAsync(int userId);
+
+    /// <summary>
     /// Add new Holding.
     /// </summary>
     Task<int> InsertHoldingAsync(CreateHoldingDTO createHoldingDTO, int userId);

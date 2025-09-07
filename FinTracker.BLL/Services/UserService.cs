@@ -39,6 +39,7 @@ public class UserService : IUserService
 
         // Generate Token.
         var token = new JwtSecurityToken(
+                "https://localhost:7191",
                 "http://FinTracker.com",
                 claims: claims,
                 expires: DateTime.Now.AddDays(1),
@@ -84,7 +85,7 @@ public class UserService : IUserService
         }
     }
 
-    public async Task<UserDTO> GetUserByAsync(Expression<Func<UserEntity, bool>> filterExpression)
+    public async Task<UserDTO?> GetUserByAsync(Expression<Func<UserEntity, bool>> filterExpression)
     {
         // Get UserEntity with fulfill given requirements.
         var userEntity = await _context.Users.
@@ -113,7 +114,7 @@ public class UserService : IUserService
                 AssetType = h.AssetType,
                 Operation = h.Operation,
                 Quantity = h.Quantity,
-                Value = h.Value,
+                PricePerUnit = h.PricePerUnit,
                 Currency = h.Currency,
                 CurrencyPrice = h.CurrencyPrice,
                 Description = h.Description,

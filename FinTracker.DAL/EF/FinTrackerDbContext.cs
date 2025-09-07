@@ -28,7 +28,7 @@ public class FinTrackerDbContext : DbContext
          .HasColumnType("date");
 
         modelBuilder.Entity<HistoryEntity>()
-         .Property(p => p.Value)
+         .Property(p => p.PricePerUnit)
          .HasColumnType("decimal(18,2)");
 
         modelBuilder.Entity<HistoryEntity>()

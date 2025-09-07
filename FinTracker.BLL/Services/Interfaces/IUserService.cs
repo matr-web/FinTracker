@@ -9,7 +9,7 @@ public interface IUserService
     /// <summary>
     /// Get a specific User that fulfill given filterExpression.
     /// </summary>
-    Task<UserDTO> GetUserByAsync(Expression<Func<UserEntity, bool>> filterExpression);
+    Task<UserDTO?> GetUserByAsync(Expression<Func<UserEntity, bool>> filterExpression);
 
     /// <summary>
     /// Register User and save him in the DB.

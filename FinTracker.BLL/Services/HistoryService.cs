@@ -2,6 +2,7 @@
 using FinTracker.DAL.EF;
 using FinTracker.DAL.Entities;
 using FinTracker.Models.DTOs.HistoryDTOs;
+using Microsoft.EntityFrameworkCore;
 
 namespace FinTracker.BLL.Services;
 
@@ -14,19 +15,19 @@ public class HistoryService : IHistoryService
         _dbContext = dbContext;
     }
 
-    public IEnumerable<HistoryDTO> GetUserHistory(int userId)
+    public IEnumerable<HistoryDTO> GetHistory(int userId)
     {
         return _dbContext.Histories
             .Where(h => h.UserId == userId)
             .Select(h => new HistoryDTO
             {
-                Id = h.UserId,
+                Id = h.Id,
                 AssetName = h.AssetName,
                 Ticker = h.Ticker,
                 AssetType = h.AssetType,
                 Operation = h.Operation,
                 Quantity = h.Quantity,
-                Value = h.Value,
+                PricePerUnit = h.PricePerUnit,
                 Currency = h.Currency,
                 CurrencyPrice = h.CurrencyPrice,
                 Description = h.Description,
@@ -34,6 +35,34 @@ public class HistoryService : IHistoryService
                 Profit = h.Profit,
                 UserId = userId
             });
+    }
+
+    public async Task<HistoryDTO?> GetHistoryElementAsync(int historyId)
+    {
+        var userEntity = await _dbContext.Histories
+            .FirstOrDefaultAsync(h => h.Id == historyId);
+
+        if (userEntity != null)
+        {
+            return new HistoryDTO
+            {
+                Id = userEntity.Id,
+                AssetName = userEntity.AssetName,
+                Ticker = userEntity.Ticker,
+                AssetType = userEntity.AssetType,
+                Operation = userEntity.Operation,
+                Quantity = userEntity.Quantity,
+                PricePerUnit = userEntity.PricePerUnit,
+                Currency = userEntity.Currency,
+                CurrencyPrice = userEntity.CurrencyPrice,
+                Description = userEntity.Description,
+                Date = userEntity.Date,
+                Profit = userEntity.Profit,
+                UserId = userEntity.UserId
+            };
+        }
+
+        return null;
     }
 
     public async Task<int> InsertHistoryElementAsync(CreateHistoryDTO createHistoryDTO, int userId)
@@ -45,7 +74,7 @@ public class HistoryService : IHistoryService
             AssetType = createHistoryDTO.AssetType,
             Operation = createHistoryDTO.Operation, 
             Quantity = createHistoryDTO.Quantity,
-            Value = createHistoryDTO.Value,
+            PricePerUnit = createHistoryDTO.PricePerUnit,
             Currency = createHistoryDTO.Currency,
             CurrencyPrice = createHistoryDTO.CurrencyPrice,
             Description = createHistoryDTO.Description,
@@ -54,7 +83,7 @@ public class HistoryService : IHistoryService
             UserId = userId
         };
 
-        if (createHistoryDTO.ROI != 0)
+        if (createHistoryDTO.ROI != null && createHistoryDTO.ROI != 0)
         {
             historyEntity.ROIBps = (int)(createHistoryDTO.ROI * 100m);
         }

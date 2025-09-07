@@ -1,6 +1,7 @@
 using FinTracker.BLL.Services;
 using FinTracker.BLL.Services.Interfaces;
 using FinTracker.DAL.EF;
+using FinTracker.WebAPI.Program_Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -25,7 +26,7 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+        ValidIssuer = builder.Configuration["JwtSettings:JWTIssuer"],
         ValidAudience = builder.Configuration["JwtSettings:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:JWTKey"]!))
     };
@@ -38,7 +39,7 @@ builder.Services.AddDbContext<FinTrackerDbContext>(options
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi("v1", options => { options.AddDocumentTransformer<BearerSecuritySchemeTransformer>(); });
 
 builder.Services.AddScoped<IHistoryService, HistoryService>();
 builder.Services.AddScoped<IHoldingService, HoldingService>();

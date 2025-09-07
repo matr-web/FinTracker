@@ -7,7 +7,12 @@ public interface IHistoryService
     /// <summary>
     /// Get the whole buy/sell history for a given user.
     /// </summary>
-    IEnumerable<HistoryDTO> GetUserHistory(int userId);
+    IEnumerable<HistoryDTO> GetHistory(int userId);
+
+    /// <summary>
+    /// Get a single history element with given Id.
+    /// </summary>
+    Task<HistoryDTO?> GetHistoryElementAsync(int historyId);
 
     /// <summary>
     /// Add new element to the history.
@@ -15,7 +20,7 @@ public interface IHistoryService
     Task<int> InsertHistoryElementAsync(CreateHistoryDTO createHistoryDTO, int userId);
 
     /// <summary>
-    /// Delete single history element for a given user.
+    /// Delete single history element.
     /// </summary>
     Task DeleteSingleHistoryElementAsync(int historyId);
 
