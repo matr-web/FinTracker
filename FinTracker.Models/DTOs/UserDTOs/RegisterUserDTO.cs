@@ -4,6 +4,7 @@ namespace FinTracker.Models.DTOs.UserDTOs;
 
 public class RegisterUserDTO
 {
+    [MinLength(4)]
     public required string Username { get; set; }
 
     [DataType(DataType.EmailAddress)]
