@@ -43,8 +43,7 @@ public class UserService : IUserService
                 "http://FinTracker.com",
                 claims: claims,
                 expires: DateTime.Now.AddDays(1),
-                signingCredentials: creds
-            );
+                signingCredentials: creds);
 
         // Write the Token.
         var jwt = new JwtSecurityTokenHandler().WriteToken(token);

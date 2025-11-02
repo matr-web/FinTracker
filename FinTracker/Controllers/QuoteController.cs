@@ -7,10 +7,11 @@ namespace FinTracker.Controllers;
 [ApiController]
 public class QuoteController : ControllerBase
 {
+    private readonly string apiKey = "d2c745pr01qvh3veatf0d2c745pr01qvh3veatfg"; // Finhub API Key.
+
     [HttpGet("GetQuote")]
     public async Task<QuoteEntity?> GetQuoteAsync(string symbol)
     {
-        string apiKey = "d2c745pr01qvh3veatf0d2c745pr01qvh3veatfg"; // Finhub API Key.
         string url = $"https://finnhub.io/api/v1/quote?symbol={symbol}&token={apiKey}";
 
         using var client = new HttpClient();

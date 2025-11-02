@@ -4,6 +4,7 @@ using FinTracker.DAL.EF;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FinTracker.DAL.EF.Migrations
 {
     [DbContext(typeof(FinTrackerDbContext))]
-    partial class FinTrackerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251102104108_DebtEntity_v1")]
+    partial class DebtEntity_v1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
