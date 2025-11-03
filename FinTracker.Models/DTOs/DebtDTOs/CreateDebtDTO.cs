@@ -13,8 +13,5 @@ public class CreateDebtDTO
     /// </summary>
     public decimal? InterestRateProcentage { get; set; }
     public int NumberOfInstallments { get; set; }
-
-    public int? NumberOfInstallmentsLeft { get; set; }
-
     public decimal InstallmentAmount { get; set; }
 }

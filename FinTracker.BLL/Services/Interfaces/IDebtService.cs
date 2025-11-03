@@ -5,19 +5,24 @@ namespace FinTracker.BLL.Services.Interfaces;
 public interface IDebtService
 {
     /// <summary>
-    /// Get the entire(summed up) debt for a given user.
+    /// Get data on a user's total (summed) debt for each month in which they were in debt.
     /// </summary>
-    Task<SummedDebtDTO?> GetSummedDebt(int userId);
+    IEnumerable<SummedDebtDTO?> GetSummedDebt(int userId);
 
     /// <summary>
     /// Get all debts for a given user.
     /// </summary>
-    IEnumerable<DebtDTO?> GetAllDebtsAsync(int userId);
+    IQueryable<DebtDTO?> GetAllDebts(int userId);
 
     /// <summary>
     /// Get a single debt element with given Id.
     /// </summary>
     Task<DebtDTO?> GetSingleDebtAsync(int debtId);
+
+    /// <summary>
+    /// Repay a installment of given debt.
+    /// </summary>
+    Task<DebtDTO?> PayOffInstallment(int debtId);
 
     /// <summary>
     /// Add new debt for given user.
