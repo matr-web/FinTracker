@@ -1,4 +1,5 @@
 ﻿using FinTracker.Models.DTOs.DebtDTOs;
+using FinTracker.Models.DTOs.InstallmentDTOs;
 
 namespace FinTracker.BLL.Services.Interfaces;
 
@@ -22,7 +23,7 @@ public interface IDebtService
     /// <summary>
     /// Repay a installment of given debt.
     /// </summary>
-    Task<DebtDTO?> PayOffInstallment(int debtId);
+    Task<DebtDTO?> PayOffInstallment(RepayInstallmentDTO repayInstallmentDTO);
 
     /// <summary>
     /// Add new debt for given user.

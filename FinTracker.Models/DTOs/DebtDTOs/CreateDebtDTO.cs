@@ -14,4 +14,5 @@ public class CreateDebtDTO
     public decimal? InterestRateProcentage { get; set; }
     public int NumberOfInstallments { get; set; }
     public decimal InstallmentAmount { get; set; }
+    public DateOnly? Date { get; set; } 
 }

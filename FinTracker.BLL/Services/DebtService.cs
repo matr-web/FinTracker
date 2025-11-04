@@ -2,6 +2,7 @@
 using FinTracker.DAL.EF;
 using FinTracker.DAL.Entities;
 using FinTracker.Models.DTOs.DebtDTOs;
+using FinTracker.Models.DTOs.InstallmentDTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinTracker.BLL.Services;
@@ -87,7 +88,7 @@ public class DebtService : IDebtService
             InterestRateProcentage = createDebtDTO.InterestRateProcentage,
             NumberOfInstallments = createDebtDTO.NumberOfInstallments,
             InstallmentAmount = createDebtDTO.InstallmentAmount,
-            Date = DateOnly.FromDateTime(new DateTime(today.Year, today.Month, 1)),
+            Date = createDebtDTO.Date ?? DateOnly.FromDateTime(new DateTime(today.Year, today.Month, 1)),
             UserId = userId
         };
 
@@ -97,10 +98,10 @@ public class DebtService : IDebtService
         return debtEntity.Id;
     }
 
-    public async Task<DebtDTO?> PayOffInstallment(int debtId)
+    public async Task<DebtDTO?> PayOffInstallment(RepayInstallmentDTO repayInstallmentDTO)
     {
         // Find the debt that needs to be repaid.
-        var debt = await _dbContext.Debts.FirstOrDefaultAsync(d => d.Id == debtId);
+        var debt = await _dbContext.Debts.FirstOrDefaultAsync(d => d.Id == repayInstallmentDTO.DebtId);
 
         if (debt == null)
         {
@@ -112,13 +113,16 @@ public class DebtService : IDebtService
 
         var installment = new InstallmentEntity
         {
-            DebtId = debtId,
-            // Set the date to the first day of a given month, because the charts are on a monthly scale.
-            RepaymentDate = DateOnly.FromDateTime(new DateTime(today.Year, today.Month, 1))
+            DebtId = repayInstallmentDTO.DebtId,
+            // Set the date to the one given by the user (but change the day to first of the month)
+            // or to the first day of a given month, because the charts are on a monthly scale.
+            RepaymentDate = repayInstallmentDTO.RepaymentDate != null ?
+            DateOnly.FromDateTime(new DateTime(repayInstallmentDTO.RepaymentDate.Value.Year, repayInstallmentDTO.RepaymentDate.Value.Month, 1))
+            : DateOnly.FromDateTime(new DateTime(today.Year, today.Month, 1))
         };
 
         // Find if there are already some installments to the debt.
-        var _installment = await _dbContext.Installments.AnyAsync(i => i.DebtId == debtId);
+        var _installment = await _dbContext.Installments.AnyAsync(i => i.DebtId == repayInstallmentDTO.DebtId);
 
         // If there is no installment to the dept.
         if (_installment == false)
@@ -142,7 +146,7 @@ public class DebtService : IDebtService
         await _dbContext.Installments.AddAsync(installment);
         await _dbContext.SaveChangesAsync();
 
-        return await _dbContext.Debts.Where(d => d.Id == debtId)
+        return await _dbContext.Debts.Where(d => d.Id == repayInstallmentDTO.DebtId)
             .Select(DebtDTO.Projection)
             .FirstOrDefaultAsync();
     }
