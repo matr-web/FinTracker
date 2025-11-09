@@ -13,6 +13,7 @@ public class DebtEntity
     public int NumberOfInstallments { get; set; }
     public decimal InstallmentAmount { get; set; }
     public DateOnly Date { get; set; }
+    public bool IsPaidOff { get; set; } = false;
 
     public ICollection<InstallmentEntity>? Installments { get; set; }
 }

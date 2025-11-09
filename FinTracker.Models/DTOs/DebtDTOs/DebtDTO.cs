@@ -24,6 +24,7 @@ public class DebtDTO
     public int NumberOfInstallments { get; set; }
     public decimal InstallmentAmount { get; set; }
     public DateOnly Date { get; set; }
+    public bool IsPaidOff { get; set; }
 
     public ICollection<InstallmentDTO>? Installments { get; set; }
 
@@ -40,6 +41,14 @@ public class DebtDTO
         InterestRateProcentage = d.InterestRateProcentage,
         NumberOfInstallments = d.NumberOfInstallments,
         InstallmentAmount = d.InstallmentAmount,
+        Date = d.Date,
+
+        User = d.User != null ? new UserDTO() 
+        {
+            Id = d.User.Id,
+            Username = d.User.Username,
+            Email = d.User.Email
+        } : null,
 
         Installments = d.Installments != null ?
                 d.Installments.Select(i => new InstallmentDTO

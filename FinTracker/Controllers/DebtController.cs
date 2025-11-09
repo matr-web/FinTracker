@@ -1,0 +1,122 @@
+﻿using FinTracker.BLL.Services.Interfaces;
+using FinTracker.Models.DTOs.DebtDTOs;
+using FinTracker.Models.DTOs.InstallmentDTOs;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
+
+namespace FinTracker.WebAPI.Controllers;
+
+[Authorize]
+[Route("api/[controller]")]
+[ApiController]
+public class DebtController : ControllerBase
+{
+    private readonly IDebtService _debtService;
+    public DebtController(IDebtService debtService)
+    {
+        _debtService = debtService;
+    }
+
+    [HttpGet("GetAll")]
+    public ActionResult<IEnumerable<DebtDTO?>> GetAll()
+    {
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+        var debtDtos = _debtService.GetAllDebts(userId).AsEnumerable();
+
+        if (debtDtos is null)
+        {
+            return NotFound(debtDtos);
+        }
+
+        return Ok(debtDtos);
+    }
+
+    [HttpGet("Get/{debtId}")]
+    public async Task<ActionResult<DebtDTO?>> GetAsync([FromRoute] int debtId)
+    {
+        var debtDTO = await _debtService.GetSingleDebtAsync(debtId);
+
+        if (debtDTO is null)
+        {
+            return NotFound(debtDTO);
+        }
+
+        return Ok(debtDTO);
+    }
+
+    [HttpGet("GetSummed")]
+    public ActionResult<IEnumerable<SummedDebtDTO?>> GetSummed()
+    {
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+        var summedDebtDtos = _debtService.GetSummedDebt(userId).AsEnumerable();
+
+        if (summedDebtDtos is null)
+        {
+            return NotFound(summedDebtDtos);
+        }
+
+        return Ok(summedDebtDtos);
+    }
+
+    [HttpPost("PayOff")]
+    public async Task<ActionResult> PayOffInstallmentAsync(RepayInstallmentDTO repayInstallmentDTO)
+    {
+        var debtDTO = await _debtService.PayOffInstallmentAsync(repayInstallmentDTO);
+
+        if (debtDTO == null)
+        {
+            return NotFound(debtDTO);
+        }
+
+        var installmentId = debtDTO!.Installments!.Last().Id; 
+
+        return Created($"Installment/{installmentId}", debtDTO); 
+    }
+
+    [HttpPost("Post")]
+    public async Task<ActionResult> PostAsync([FromBody] CreateDebtDTO createDebtDTO)
+    {
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+        var debtId = await _debtService.InsertDebtAsync(createDebtDTO, userId);
+
+        var debtDTO = await _debtService.GetSingleDebtAsync(debtId);
+
+        return Created($"Debt/{debtId}", debtDTO);
+    }
+
+    [HttpDelete("Delete/{debtId}")]
+    public async Task<ActionResult> DeleteAsync([FromRoute] int debtId)
+    {
+        var debtDTO = await _debtService.GetSingleDebtAsync(debtId);
+
+        if (debtDTO == null)
+        {
+            return NotFound();
+        }
+
+        await _debtService.DeleteSingleDebtAsync(debtId);
+
+        return NoContent();
+    }
+
+    [HttpDelete("DeleteAll")]
+    public async Task<ActionResult> DeleteAllAsync()
+    {
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+        var userDebtDTOs = _debtService.GetAllDebts(userId);
+
+        if (userDebtDTOs == null || !userDebtDTOs.Any())
+        {
+            return NotFound();
+        }
+
+        await _debtService.DeleteWholeDebtAsync(userId);
+
+        return NoContent();
+    }
+}
