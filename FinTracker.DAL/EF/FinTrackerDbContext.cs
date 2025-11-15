@@ -14,6 +14,7 @@ public class FinTrackerDbContext : DbContext
     public DbSet<HoldingEntity> Holdings { get; set; }
     public DbSet<DebtEntity> Debts { get; set; }
     public DbSet<InstallmentEntity> Installments { get; set; }
+    public DbSet<CashEntity> Cash { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -72,6 +73,11 @@ public class FinTrackerDbContext : DbContext
         // InstallmentEntity Configuration
         modelBuilder.Entity<InstallmentEntity>()
            .Property(i => i.AmountLeft)
+           .HasColumnType("decimal(18, 2)");
+
+        // CashEntity Configuration
+        modelBuilder.Entity<CashEntity>()
+           .Property(i => i.Amount)
            .HasColumnType("decimal(18, 2)");
     }
 }

@@ -40,6 +40,7 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi("v1", options => { options.AddDocumentTransformer<BearerSecuritySchemeTransformer>(); });
 
+builder.Services.AddScoped<ICashService, CashService>();
 builder.Services.AddScoped<IDebtService, DebtService>();
 builder.Services.AddScoped<IHistoryService, HistoryService>();
 builder.Services.AddScoped<IHoldingService, HoldingService>();
