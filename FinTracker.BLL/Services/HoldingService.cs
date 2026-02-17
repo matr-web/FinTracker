@@ -22,8 +22,11 @@ public class HoldingService : IHoldingService
              .Select(h => new HoldingDTO
              {
                  Id = h.UserId,
+                 TickerSymbol = h.TickerSymbol,
                  StockName = h.StockName,
-                 Value = h.Value,
+                 Quantity = h.Quantity,
+                 BuyPrice = h.BuyPrice,
+                 Currency = h.Currency,
                  UserId = userId
              });
     }
@@ -38,8 +41,11 @@ public class HoldingService : IHoldingService
             return new HoldingDTO
             {
                 Id = holdingEntity.Id,
+                TickerSymbol = holdingEntity.TickerSymbol,
                 StockName = holdingEntity.StockName,
-                Value = holdingEntity.Value,
+                Quantity = holdingEntity.Quantity,
+                BuyPrice = holdingEntity.BuyPrice,
+                Currency = holdingEntity.Currency,
                 UserId = holdingEntity.UserId
             };
         }
@@ -52,7 +58,10 @@ public class HoldingService : IHoldingService
         var holdingEntity = new HoldingEntity
         {
             StockName = createHoldingDTO.StockName,
-            Value = createHoldingDTO.Value,
+            TickerSymbol = createHoldingDTO.TickerSymbol, 
+            Quantity = createHoldingDTO.Quantity,
+            BuyPrice = createHoldingDTO.BuyPrice,
+            Currency= createHoldingDTO.Currency,
             UserId = userId
         };
 

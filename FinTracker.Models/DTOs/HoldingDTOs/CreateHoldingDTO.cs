@@ -1,11 +1,16 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using FinTracker.Models.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace FinTracker.Models.DTOs.HoldingDTOs;
 
 public class CreateHoldingDTO
 {
     public required string StockName { get; set; }
+    public required string TickerSymbol { get; set; }
+
+    public double Quantity { get; set; }
 
     [DataType(DataType.Currency)]
-    public decimal Value { get; set; }
+    public decimal BuyPrice { get; set; }
+    public Currency Currency { get; set; }   
 }

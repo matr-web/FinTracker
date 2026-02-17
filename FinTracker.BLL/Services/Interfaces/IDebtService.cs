@@ -23,7 +23,7 @@ public interface IDebtService
     /// <summary>
     /// Repay a installment of given debt.
     /// </summary>
-    Task<DebtDTO?> PayOffInstallmentAsync(RepayInstallmentDTO repayInstallmentDTO);
+    Task<DebtDTO?> PayOffInstallmentAsync(int debtId, RepayInstallmentDTO repayInstallmentDTO);
 
     /// <summary>
     /// Add new debt for given user.

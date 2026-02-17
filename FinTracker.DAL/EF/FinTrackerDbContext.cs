@@ -50,7 +50,7 @@ public class FinTrackerDbContext : DbContext
 
         // HoldingEntity Configuration
         modelBuilder.Entity<HoldingEntity>()
-         .Property(h => h.Value)
+         .Property(h => h.BuyPrice)
          .HasColumnType("decimal(18,2)");
 
         // DebtEntity Configuration

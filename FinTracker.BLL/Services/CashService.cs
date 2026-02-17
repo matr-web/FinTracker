@@ -1,4 +1,5 @@
-﻿using FinTracker.BLL.Services.Interfaces;
+﻿using FinTracker.BLL.Mappers;
+using FinTracker.BLL.Services.Interfaces;
 using FinTracker.DAL.EF;
 using FinTracker.DAL.Entities;
 using FinTracker.Models.DTOs.CashDTOs;
@@ -19,7 +20,7 @@ public class CashService : ICashService
         return _dbContext.Cash
             .Include(c => c.User)
             .Where(c => c.UserId == userId)
-            .Select(CashDTO.Projection);
+            .Select(CashMapper.Projection);
     }
 
     public async Task<CashDTO?> GetCurrentCashAsync(int userId)
@@ -28,7 +29,7 @@ public class CashService : ICashService
             .Include(c => c.User)
             .Where(c => c.UserId == userId)
             .OrderByDescending(c => c.Date)
-            .Select(CashDTO.Projection)
+            .Select(CashMapper.Projection)
             .FirstOrDefaultAsync();
     }
 
@@ -37,7 +38,7 @@ public class CashService : ICashService
         return await _dbContext.Cash
             .Include(c => c.User)
             .Where(c => c.Id == cashId)
-            .Select(CashDTO.Projection)
+            .Select(CashMapper.Projection)
             .FirstOrDefaultAsync(); 
     }
 

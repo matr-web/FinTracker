@@ -21,6 +21,7 @@
   <ItemGroup>
     <ProjectReference Include="..\FinTracker.BLL\FinTracker.BLL.csproj" />
     <ProjectReference Include="..\FinTracker.DAL\FinTracker.DAL.csproj" />
+    <ProjectReference Include="..\FinTracker.Models\FinTracker.Models.csproj" />
   </ItemGroup>
 
 </Project>

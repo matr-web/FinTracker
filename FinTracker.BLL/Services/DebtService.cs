@@ -1,4 +1,5 @@
-﻿using FinTracker.BLL.Services.Interfaces;
+﻿using FinTracker.BLL.Mappers;
+using FinTracker.BLL.Services.Interfaces;
 using FinTracker.DAL.EF;
 using FinTracker.DAL.Entities;
 using FinTracker.Models.DTOs.DebtDTOs;
@@ -103,7 +104,7 @@ public class DebtService : IDebtService
             .Include(d => d.User)
             .Include(d => d.Installments)
             .Where(d => d.UserId == userId)
-            .Select(DebtDTO.Projection);
+            .Select(DebtMapper.Projection);
     }
 
     public async Task<DebtDTO?> GetSingleDebtAsync(int debtId)
@@ -112,7 +113,7 @@ public class DebtService : IDebtService
             .Include(d => d.User)
             .Include(d => d.Installments)
             .Where(d => d.Id == debtId)
-            .Select(DebtDTO.Projection)
+            .Select(DebtMapper.Projection)
             .FirstOrDefaultAsync();
     }
 
@@ -143,12 +144,18 @@ public class DebtService : IDebtService
         return debtEntity.Id;
     }
 
-    public async Task<DebtDTO?> PayOffInstallmentAsync(RepayInstallmentDTO repayInstallmentDTO)
+    public async Task<DebtDTO?> PayOffInstallmentAsync(int debtId, RepayInstallmentDTO repayInstallmentDTO)
     {
         // Find the debt that needs to be repaid. If there is no such debt throw: InvalidOperationException.
         var debt = await _dbContext.Debts
             .Include(d => d.Installments)
-            .SingleAsync(d => d.Id == repayInstallmentDTO.DebtId);
+            .SingleAsync(d => d.Id == debtId);
+
+        // Check if such debt exists. If not throw: InvalidOperationException.
+        if (debt == null)
+        {
+            throw new InvalidOperationException($"There is no debt with ID {debtId}.");
+        }
 
         // Check if the debt is already paid off.
         if (debt.IsPaidOff)
@@ -203,7 +210,7 @@ public class DebtService : IDebtService
         // Create new installment entity that will be added to the db - it will represent the just paid installment.
         var installment = new InstallmentEntity
         {
-            DebtId = repayInstallmentDTO.DebtId,
+            DebtId = debtId,
 
             // Set the date to the one given by the user (but change the day to first of the month)
             // or to the first day of a given month, because the charts are on a monthly scale.
@@ -244,8 +251,8 @@ public class DebtService : IDebtService
         return await _dbContext.Debts
             .Include(d => d.User)
             .Include(d => d.Installments)
-            .Where(d => d.Id == repayInstallmentDTO.DebtId)
-            .Select(DebtDTO.Projection)
+            .Where(d => d.Id == debtId)
+            .Select(DebtMapper.Projection)
             .FirstOrDefaultAsync();
     }
 

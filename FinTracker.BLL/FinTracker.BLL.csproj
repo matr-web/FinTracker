@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\FinTracker.DAL\FinTracker.DAL.csproj" />
     <ProjectReference Include="..\FinTracker.Models\FinTracker.Models.csproj" />
   </ItemGroup>
 

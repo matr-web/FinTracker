@@ -1,6 +1,4 @@
-﻿using FinTracker.DAL.Entities;
-using FinTracker.Models.DTOs.UserDTOs;
-using System.Linq.Expressions;
+﻿using FinTracker.Models.DTOs.UserDTOs;
 
 namespace FinTracker.Models.DTOs.CashDTOs;
 
@@ -13,23 +11,4 @@ public class CashDTO
 
     public decimal Amount { get; set; }
     public DateOnly Date { get; set; }
-
-    /// <summary>
-    /// Static mapping expression from DebtEntity to DebtDTO.
-    /// </summary>
-    public static Expression<Func<CashEntity, CashDTO>> Projection =>
-    c => new CashDTO
-    {
-        Id = c.Id,
-        UserId = c.UserId,
-        Amount = c.Amount,
-        Date = c.Date,
-
-        User = c.User != null ? new UserDTO()
-        {
-            Id = c.User.Id,
-            Username = c.User.Username,
-            Email = c.User.Email
-        } : null
-    };
 }

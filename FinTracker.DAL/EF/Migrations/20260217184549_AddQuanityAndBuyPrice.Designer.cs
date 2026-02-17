@@ -4,6 +4,7 @@ using FinTracker.DAL.EF;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FinTracker.DAL.EF.Migrations
 {
     [DbContext(typeof(FinTrackerDbContext))]
-    partial class FinTrackerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260217184549_AddQuanityAndBuyPrice")]
+    partial class AddQuanityAndBuyPrice
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -151,17 +154,10 @@ namespace FinTracker.DAL.EF.Migrations
                     b.Property<decimal>("BuyPrice")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("Currency")
-                        .HasColumnType("int");
-
                     b.Property<double>("Quantity")
                         .HasColumnType("float");
 
                     b.Property<string>("StockName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TickerSymbol")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 

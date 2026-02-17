@@ -61,10 +61,10 @@ public class DebtController : ControllerBase
         return Ok(summedDebtDtos);
     }
 
-    [HttpPost("PayOff")]
-    public async Task<ActionResult> PayOffInstallmentAsync(RepayInstallmentDTO repayInstallmentDTO)
+    [HttpPost("PayOff/{debtId}")]
+    public async Task<ActionResult> PayOffInstallmentAsync([FromRoute]int debtId, RepayInstallmentDTO repayInstallmentDTO)
     {
-        var debtDTO = await _debtService.PayOffInstallmentAsync(repayInstallmentDTO);
+        var debtDTO = await _debtService.PayOffInstallmentAsync(debtId, repayInstallmentDTO);
 
         if (debtDTO == null)
         {

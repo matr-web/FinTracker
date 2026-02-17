@@ -4,6 +4,7 @@ using FinTracker.DAL.Entities;
 using FinTracker.Models.DTOs.HistoryDTOs;
 using FinTracker.Models.DTOs.HoldingDTOs;
 using FinTracker.Models.DTOs.UserDTOs;
+using FinTracker.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -125,8 +126,11 @@ public class UserService : IUserService
             userEntity.Holdings.Select(h => new HoldingDTO
             {
                 Id = h.Id,
+                TickerSymbol = h.TickerSymbol,
                 StockName = h.StockName,
-                Value = h.Value,
+                Quantity = h.Quantity,
+                BuyPrice = h.BuyPrice,
+                Currency = h.Currency,
                 UserId = h.UserId
             }).ToList() : null
         }; 

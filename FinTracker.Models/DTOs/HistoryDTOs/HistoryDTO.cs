@@ -1,6 +1,6 @@
-﻿using FinTracker.DAL.Entities;
-using FinTracker.Models.DTOs.UserDTOs;
+﻿using FinTracker.Models.DTOs.UserDTOs;
 using System.ComponentModel.DataAnnotations;
+using FinTracker.Models.Enums;
 
 namespace FinTracker.Models.DTOs.HistoryDTOs;
 

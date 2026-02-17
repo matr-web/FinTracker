@@ -1,4 +1,4 @@
-﻿using FinTracker.DAL.Entities;
+﻿using FinTracker.Models.Enums;
 using System.ComponentModel.DataAnnotations;
 
 namespace FinTracker.Models.DTOs.HistoryDTOs;
