@@ -42,7 +42,7 @@ public class UserService : IUserService
                 "https://localhost:7191",
                 "http://FinTracker.com",
                 claims: claims,
-                expires: DateTime.Now.AddDays(1),
+                expires: DateTime.Now.AddDays(30),
                 signingCredentials: creds);
 
         // Write the Token.

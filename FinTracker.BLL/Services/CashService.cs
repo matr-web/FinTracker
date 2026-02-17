@@ -54,6 +54,23 @@ public class CashService : ICashService
                     );
         }
 
+        // Check if the given amount is not negative.
+        if(createCashDTO.Amount < 0)
+        {
+            throw new ArgumentOutOfRangeException(
+                    paramName: nameof(createCashDTO.Amount),
+                    actualValue: createCashDTO.Amount,
+                    $"The given amount: {createCashDTO.Amount} is negative. Amount should be positive."
+                    );
+        }
+
+        var cashValuesWithTheSameDate = _dbContext.Cash.Where(c => c.Date == createCashDTO.Date);
+
+        if (cashValuesWithTheSameDate != null)
+        { 
+            _dbContext.Cash.RemoveRange(cashValuesWithTheSameDate); 
+        }
+
         var cashEntity = new CashEntity()
         {
             UserId = userId,

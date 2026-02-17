@@ -185,7 +185,7 @@ public class DebtService : IDebtService
             }
 
             // If this date is from the future.
-            if (repayInstallmentDTO.RepaymentDate > DateOnly.FromDateTime(new DateTime(today.Year, today.Month, 1)))
+            if (repayInstallmentDTO.RepaymentDate > DateOnly.FromDateTime(new DateTime(today.Year, today.Month, DateTime.Today.Day)))
             {
                 throw new ArgumentOutOfRangeException(
                     paramName: nameof(repayInstallmentDTO.RepaymentDate),

@@ -51,7 +51,7 @@ namespace FinTracker.WebAPI.Controllers
         }
 
         // POST api/<CashController>
-        [HttpPost("Post")]
+        [HttpPost("PostCash")]
         public async Task<ActionResult> PostAsync([FromBody] CreateCashDTO createCashDTO)
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
