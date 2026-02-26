@@ -115,7 +115,7 @@ public class UserService : IUserService
                 Operation = h.Operation,
                 Quantity = h.Quantity,
                 PricePerUnit = h.PricePerUnit,
-                Currency = h.Currency,
+                CurrencyCode = h.CurrencyCode,
                 CurrencyPrice = h.CurrencyPrice,
                 Description = h.Description,
                 Date = h.Date,
@@ -130,7 +130,7 @@ public class UserService : IUserService
                 StockName = h.StockName,
                 Quantity = h.Quantity,
                 BuyPrice = h.BuyPrice,
-                Currency = h.Currency,
+                CurrencyCode = h.CurrencyCode,
                 UserId = h.UserId
             }).ToList() : null
         }; 

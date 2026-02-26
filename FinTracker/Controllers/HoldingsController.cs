@@ -19,11 +19,11 @@ public class HoldingsController : ControllerBase
     }
 
     [HttpGet("GetAll")]
-    public ActionResult<IEnumerable<HoldingDTO>> GetAll()
+    public async Task<ActionResult<IEnumerable<HoldingDTO>>> GetAllAsync()
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-        IEnumerable<HoldingDTO> holdingDtos = _holdingService.GetHoldings(userId);
+        IEnumerable<HoldingDTO> holdingDtos = await _holdingService.GetHoldingsAsync(userId);
 
         if (holdingDtos is null)
         {
@@ -38,7 +38,7 @@ public class HoldingsController : ControllerBase
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-        var holdingId = await _holdingService.InsertHoldingAsync(createHoldingDTO, userId);
+        var holdingId = await _holdingService.InsertOrUpdateHoldingAsync(createHoldingDTO, userId);
 
         var holdingDTO = await _holdingService.GetHoldingAsync(holdingId);
 

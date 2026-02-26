@@ -14,7 +14,16 @@ public class HoldingDTO
 
     [DataType(DataType.Currency)]
     public decimal BuyPrice { get; set; }
-    public Currency Currency { get; set; }
+
+    [DataType(DataType.Currency)]
+    public decimal CurrentPrice { get; set; }
+    public CurrencyCode CurrencyCode { get; set; }
+
+    [DataType(DataType.Currency)]
+    public decimal CurrencyPriceWhenBought { get; set; } = 1m;
+
+    [DataType(DataType.Currency)]
+    public decimal CurrentCurrencyPrice { get; set; } = 1m;
 
     public int UserId { get; set; }
     public UserDTO? User { get; set; }

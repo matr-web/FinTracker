@@ -10,7 +10,9 @@ public class HoldingEntity
     public required string StockName { get; set; }
     public double Quantity { get; set; }
     public decimal BuyPrice { get; set; }
-    public Currency Currency { get; set; }
+
+    public CurrencyCode CurrencyCode { get; set; }
+    public decimal CurrencyPrice { get; set; }
 
     public int UserId { get; set; }
     public UserEntity? User { get; set; }

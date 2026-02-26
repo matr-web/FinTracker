@@ -1,7 +1,9 @@
 ﻿using FinTracker.BLL.Services.Interfaces;
 using FinTracker.Models.DTOs.CashDTOs;
+using FinTracker.Models.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 
 namespace FinTracker.WebAPI.Controllers
@@ -20,11 +22,11 @@ namespace FinTracker.WebAPI.Controllers
 
         // GET: api/<CashController>
         [HttpGet("CashHistory")]
-        public ActionResult<IEnumerable<CashDTO>> GetHistory()
+        public ActionResult<IEnumerable<CashDTO>> GetHistory([FromQuery][EnumDataType(typeof(CashType))] CashType cashType)
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-            var cashHistory = _cashService.GetCashHistory(userId);
+            var cashHistory = _cashService.GetCashHistory(userId, cashType);
 
             if (cashHistory == null)
             {
@@ -36,11 +38,11 @@ namespace FinTracker.WebAPI.Controllers
 
         // GET api/<CashController>/5
         [HttpGet("CurrentCash")]
-        public async Task<ActionResult> GetCurrentCashAsync()
+        public async Task<ActionResult> GetCurrentCashAsync([FromQuery][EnumDataType(typeof(CashType))] CashType cashType)
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-            var currentCash = await _cashService.GetCurrentCashAsync(userId);
+            var currentCash = await _cashService.GetCurrentCashAsync(userId, cashType);
 
             if (currentCash == null)
             {
@@ -56,7 +58,7 @@ namespace FinTracker.WebAPI.Controllers
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-            var cashId = await _cashService.InsertCashAsync(createCashDTO, userId);
+            var cashId = await _cashService.InsertCashAsync(userId, createCashDTO);
 
             var cashDTO = await _cashService.GetSingleCashValueAsync(cashId);
 

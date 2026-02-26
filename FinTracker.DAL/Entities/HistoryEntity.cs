@@ -16,7 +16,7 @@ public class HistoryEntity
     public Operation Operation { get; set; }
     public double Quantity { get; set; }
     public decimal PricePerUnit { get; set; }
-    public Currency Currency { get; set; }
+    public CurrencyCode CurrencyCode { get; set; }
     public decimal? CurrencyPrice { get; set; }
     public string? Description { get; set; }
     public DateOnly? Date { get; set; } 

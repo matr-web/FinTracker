@@ -1,6 +1,6 @@
 ﻿namespace FinTracker.Models.Enums;
 
-public enum Currency
+public enum CurrencyCode
 {
     PLN,
     EUR,

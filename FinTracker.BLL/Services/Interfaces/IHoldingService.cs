@@ -7,7 +7,7 @@ public interface IHoldingService
     /// <summary>
     /// Get All Holdings for a given User.
     /// </summary>
-    IEnumerable<HoldingDTO> GetHoldings(int userId);
+    Task<IEnumerable<HoldingDTO>> GetHoldingsAsync(int userId);
 
     /// <summary>
     /// Get Holding with given Id.
@@ -17,7 +17,7 @@ public interface IHoldingService
     /// <summary>
     /// Add new Holding.
     /// </summary>
-    Task<int> InsertHoldingAsync(CreateHoldingDTO createHoldingDTO, int userId);
+    Task<int> InsertOrUpdateHoldingAsync(CreateHoldingDTO createHoldingDTO, int userId);
 
     /// <summary>
     /// Delete given Holding.

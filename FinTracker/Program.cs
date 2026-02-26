@@ -43,8 +43,9 @@ builder.Services.AddOpenApi("v1", options => { options.AddDocumentTransformer<Be
 builder.Services.AddScoped<ICashService, CashService>();
 builder.Services.AddScoped<IDebtService, DebtService>();
 builder.Services.AddScoped<IHistoryService, HistoryService>();
-builder.Services.AddScoped<IHoldingService, HoldingService>();
 builder.Services.AddScoped<IUserService, UserService>();
+// Automatically manages the lifecycle of network connections and prevents socket leaks (Socket Exhaustion).
+builder.Services.AddHttpClient<IHoldingService, HoldingService>();
 
 // CORS configuration.
 builder.Services.AddCors(options =>

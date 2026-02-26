@@ -1,4 +1,5 @@
 ﻿using FinTracker.Models.DTOs.CashDTOs;
+using FinTracker.Models.Enums;
 
 namespace FinTracker.BLL.Services.Interfaces;
 
@@ -7,12 +8,12 @@ public interface ICashService
     /// <summary>
     /// Get whole cash history for a given user.
     /// </summary>
-    IQueryable<CashDTO?> GetCashHistory(int userId);
+    IQueryable<CashDTO?> GetCashHistory(int userId, CashType cashType);
 
     /// <summary>
     /// Get current cash value for a given user.
     /// </summary>
-    Task<CashDTO?> GetCurrentCashAsync(int userId);
+    Task<CashDTO?> GetCurrentCashAsync(int userId, CashType cashType);
 
     /// <summary>
     /// Get given cash value for a given user.
@@ -22,7 +23,7 @@ public interface ICashService
     /// <summary>
     /// Add new Cash value.
     /// </summary>
-    Task<int> InsertCashAsync(CreateCashDTO createCashDTO, int userId);
+    Task<int> InsertCashAsync(int userId, CreateCashDTO createCashDTO);
 
     /// <summary>
     /// Delete single debt.

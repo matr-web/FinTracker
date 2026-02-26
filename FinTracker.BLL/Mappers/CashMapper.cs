@@ -1,6 +1,7 @@
 ﻿using FinTracker.DAL.Entities;
 using FinTracker.Models.DTOs.CashDTOs;
 using FinTracker.Models.DTOs.UserDTOs;
+using FinTracker.Models.Enums;
 using System.Linq.Expressions;
 
 namespace FinTracker.BLL.Mappers;
@@ -16,6 +17,7 @@ public class CashMapper
         Id = c.Id,
         UserId = c.UserId,
         Amount = c.Amount,
+        CashType = c.CashType,
         Date = c.Date,
 
         User = c.User != null ? new UserDTO()

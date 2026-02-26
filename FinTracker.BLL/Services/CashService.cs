@@ -3,6 +3,7 @@ using FinTracker.BLL.Services.Interfaces;
 using FinTracker.DAL.EF;
 using FinTracker.DAL.Entities;
 using FinTracker.Models.DTOs.CashDTOs;
+using FinTracker.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace FinTracker.BLL.Services;
@@ -15,19 +16,19 @@ public class CashService : ICashService
         _dbContext = dbContext;
     }
 
-    public IQueryable<CashDTO?> GetCashHistory(int userId)
+    public IQueryable<CashDTO?> GetCashHistory(int userId, CashType cashType)
     {
         return _dbContext.Cash
             .Include(c => c.User)
-            .Where(c => c.UserId == userId)
+            .Where(c => c.UserId == userId && c.CashType == cashType)
             .Select(CashMapper.Projection);
     }
 
-    public async Task<CashDTO?> GetCurrentCashAsync(int userId)
+    public async Task<CashDTO?> GetCurrentCashAsync(int userId, CashType cashType)
     {
         return await _dbContext.Cash
             .Include(c => c.User)
-            .Where(c => c.UserId == userId)
+            .Where(c => c.UserId == userId && c.CashType == cashType)
             .OrderByDescending(c => c.Date)
             .Select(CashMapper.Projection)
             .FirstOrDefaultAsync();
@@ -42,7 +43,7 @@ public class CashService : ICashService
             .FirstOrDefaultAsync(); 
     }
 
-    public async Task<int> InsertCashAsync(CreateCashDTO createCashDTO, int userId)
+    public async Task<int> InsertCashAsync(int userId, CreateCashDTO createCashDTO)
     {
         // Check if the given date is not from the future.
         if(createCashDTO.Date != null && createCashDTO.Date > DateOnly.FromDateTime(DateTime.Today))
@@ -65,8 +66,13 @@ public class CashService : ICashService
                     );
         }
 
-        var cashValuesWithTheSameDate = _dbContext.Cash.Where(c => c.Date == createCashDTO.Date);
+        // Search for cash values with the same date.
+        var cashValuesWithTheSameDate = _dbContext.Cash
+            .Where(c => c.UserId == userId 
+            && c.CashType == createCashDTO.CashType
+            && c.Date == createCashDTO.Date);
 
+        //  If there are any, delete them, because we want to have only one cash value for each date.
         if (cashValuesWithTheSameDate != null)
         { 
             _dbContext.Cash.RemoveRange(cashValuesWithTheSameDate); 
@@ -76,6 +82,7 @@ public class CashService : ICashService
         {
             UserId = userId,
             Amount = createCashDTO.Amount,
+            CashType = createCashDTO.CashType,
             Date = createCashDTO.Date != null ? createCashDTO.Date.Value : DateOnly.FromDateTime(DateTime.Today)
         };
 

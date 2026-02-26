@@ -12,7 +12,7 @@ public class CreateHistoryDTO
     public double Quantity { get; set; }
     [DataType(DataType.Currency)]
     public decimal PricePerUnit { get; set; }
-    public Currency Currency { get; set; }
+    public CurrencyCode CurrencyCode { get; set; }
     [DataType(DataType.Currency)]
     public decimal? CurrencyPrice { get; set; }
     public string? Description { get; set; }
