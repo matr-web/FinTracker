@@ -7,7 +7,7 @@ public class CreateHoldingDTO
 {
     public required string StockName { get; set; }
     public required string TickerSymbol { get; set; }
-    public double Quantity { get; set; }
+    public decimal Quantity { get; set; }
 
     [DataType(DataType.Currency)]
     public decimal BuyPrice { get; set; }

@@ -1,13 +1,14 @@
 ﻿using FinTracker.Models.DTOs.HoldingDTOs;
+using FinTracker.Models.ViewModels;
 
 namespace FinTracker.BLL.Services.Interfaces;
 
 public interface IHoldingService
 {
     /// <summary>
-    /// Get All Holdings for a given User.
+    /// Get Portfolio for a given User.
     /// </summary>
-    Task<IEnumerable<HoldingDTO>> GetHoldingsAsync(int userId);
+    Task<PortfolioViewModel> GetPortfolioAsync(int userId);
 
     /// <summary>
     /// Get Holding with given Id.

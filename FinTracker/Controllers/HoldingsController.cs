@@ -1,5 +1,6 @@
 ﻿using FinTracker.BLL.Services.Interfaces;
 using FinTracker.Models.DTOs.HoldingDTOs;
+using FinTracker.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -23,14 +24,14 @@ public class HoldingsController : ControllerBase
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-        IEnumerable<HoldingDTO> holdingDtos = await _holdingService.GetHoldingsAsync(userId);
+        PortfolioViewModel portfolioViewModel = await _holdingService.GetPortfolioAsync(userId);
 
-        if (holdingDtos is null)
+        if (portfolioViewModel is null)
         {
-            return NotFound(holdingDtos);
+            return NotFound(portfolioViewModel);
         }
 
-        return Ok(holdingDtos);
+        return Ok(portfolioViewModel);
     }
 
     [HttpPost("Post")]

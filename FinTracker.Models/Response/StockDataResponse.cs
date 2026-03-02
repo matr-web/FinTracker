@@ -1,29 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
-
-namespace FinTracker.Models.Response;
+﻿namespace FinTracker.Models.Response;
 
 public class StockDataResponse
 {
-    [JsonPropertyName("c")]
+    public string Symbol { get; set; } = default!;
+    public string Name { get; set; } = default!;
     public decimal CurrentPrice { get; set; }
-
-    [JsonPropertyName("h")]
-    public decimal HighOfTheDay { get; set; }
-
-    [JsonPropertyName("l")]
-    public decimal LowOfTheDay { get; set; }
-
-    [JsonPropertyName("o")]
-    public decimal OpenPrice { get; set; }
-
-    [JsonPropertyName("pc")]
-    public decimal PreviousClosePrice { get; set; }
-
-    [JsonPropertyName("t")]
-    public long Timestamp { get; set; }
+    public string Currency { get; set; } = default!;
+    public DateTime LastTradeTime { get; set; }
 }

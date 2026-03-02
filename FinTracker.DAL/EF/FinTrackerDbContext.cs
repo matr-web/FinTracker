@@ -57,6 +57,10 @@ public class FinTrackerDbContext : DbContext
          .Property(h => h.CurrencyPrice)
          .HasColumnType("decimal(18,2)");
 
+        modelBuilder.Entity<HoldingEntity>()
+         .Property(h => h.Quantity)
+         .HasColumnType("decimal(18,4)");
+
         // DebtEntity Configuration
         modelBuilder.Entity<DebtEntity>()
          .Property(d => d.InterestRateProcentage)

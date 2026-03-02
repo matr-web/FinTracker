@@ -3,30 +3,25 @@ using FinTracker.DAL.EF;
 using FinTracker.DAL.Entities;
 using FinTracker.Models.DTOs.HoldingDTOs;
 using FinTracker.Models.Response;
+using FinTracker.Models.ViewModels;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using System.Net.Http.Json;
+using YahooFinanceApi;
 
 namespace FinTracker.BLL.Services;
 
 public class HoldingService : IHoldingService
 {
     private readonly FinTrackerDbContext _dbContext;
-    private readonly HttpClient _client;
-    private readonly string _apiKey;
 
-    public HoldingService(FinTrackerDbContext dbContext, IConfiguration configuration, HttpClient client)
+    public HoldingService(FinTrackerDbContext dbContext)
     {
         _dbContext = dbContext;
-
-        _client = client;
-        // Take the API key from the configuration, if it doesn't exist, throw an exception.
-        _apiKey = configuration["Finnhub:ApiKey"]
-                  ?? throw new ArgumentNullException("There is no API Key in the configuration!");
     }
 
-    public async Task<IEnumerable<HoldingDTO>> GetHoldingsAsync(int userId)
+    public async Task<PortfolioViewModel> GetPortfolioAsync(int userId)
     {
+        // Find all holdings for the user from the database.
         var holdingsFromDb = await _dbContext.Holdings
             .Where(h => h.UserId == userId)
             .ToListAsync();
@@ -41,21 +36,62 @@ public class HoldingService : IHoldingService
             ratesCache[code] = await GetExchangeRateFrankfurter(code, "PLN");
         }
 
-        var dtoTasks = holdingsFromDb.Select(async h => new HoldingDTO
-        {
-            Id = h.Id,
-            TickerSymbol = h.TickerSymbol,
-            StockName = h.StockName,
-            Quantity = h.Quantity,
-            BuyPrice = h.BuyPrice,
-            CurrentPrice = (await GetStockData(h.TickerSymbol))?.CurrentPrice ?? 0,
-            CurrencyCode = h.CurrencyCode,
-            CurrencyPriceWhenBought = h.CurrencyPrice,
-            CurrentCurrencyPrice = await GetExchangeRateFrankfurter(h.CurrencyCode.ToString(), "PLN"),
-            UserId = userId
-        });
+        decimal totalValueInvested = 0;
+        decimal totalCurrentValue = 0;
 
-        return await Task.WhenAll(dtoTasks);
+        foreach (var holding in holdingsFromDb)
+        {
+            // Calculate total value invested by multiplying the buy price, currency price at the time of purchase, and quantity.
+            totalValueInvested += holding.BuyPrice * holding.CurrencyPrice * holding.Quantity;
+
+            // Calculate total current value by multiplying the current stock price, current exchange rate, and quantity.
+            totalCurrentValue += ((await GetStockData(holding.TickerSymbol))?.CurrentPrice ?? 0)
+                * await GetExchangeRateFrankfurter(holding.CurrencyCode.ToString(), "PLN") * holding.Quantity;
+        }
+
+        // Calculate the total percentage change for the entire portfolio based on the total value invested and the total current value.
+        var totalPercentageChange = CalculatePercentageChange(totalValueInvested, totalCurrentValue);
+
+        var holdingsDTOs = new List<HoldingDTO>();  
+
+        foreach (var h in holdingsFromDb)
+        {
+            // Get the current stock data for the holding's ticker symbol.
+            var stockData = await GetStockData(h.TickerSymbol);
+            // Get the exchange rate for the holding's currency code from the cache.
+            var exchangeRate = ratesCache[h.CurrencyCode.ToString()];
+
+            holdingsDTOs.Add(new HoldingDTO {
+                Id = h.Id,
+                TickerSymbol = h.TickerSymbol,
+                StockName = h.StockName,
+                Quantity = h.Quantity,
+                BuyPrice = h.BuyPrice,
+                CurrentPrice = stockData ?.CurrentPrice ?? 0,
+                CurrentHoldingValue = (stockData?.CurrentPrice ?? 0) *
+                h.Quantity * exchangeRate,
+                CurrencyCode = h.CurrencyCode,
+                CurrencyPriceWhenBought = h.CurrencyPrice,
+                CurrentCurrencyPrice = exchangeRate,
+                PercentageChange = CalculatePercentageChange(h.BuyPrice, stockData?.CurrentPrice ?? 0),
+                PercentageChangeWithCurrencyChangesCalculated =
+                    CalculatePercentageChange(h.BuyPrice * h.CurrencyPrice, stockData?.CurrentPrice * h.CurrencyPrice ?? 0),
+                PortfolioPercentage = ((stockData?.CurrentPrice ?? 0) *
+                h.Quantity * exchangeRate) / totalCurrentValue * 100,
+                UserId = userId
+            });
+        }
+
+        // Return the portfolio view model with the total value invested, total current value, total percentage change, and the list of holdings.
+        var portfolio = new PortfolioViewModel()
+        {
+            ValueInvested = totalValueInvested,
+            TotalValue = totalCurrentValue,
+            TotalPercentageChange = totalPercentageChange,
+            Holdings = holdingsDTOs
+        };
+
+        return portfolio;
     }
 
     public async Task<HoldingDTO?> GetHoldingAsync(int Id)
@@ -63,7 +99,32 @@ public class HoldingService : IHoldingService
         var holdingEntity = await _dbContext.Holdings
              .FirstOrDefaultAsync(h => h.Id == Id);
 
-        if(holdingEntity != null)
+        if (holdingEntity == null) 
+        {
+            return null;
+        }
+
+        // Get the current stock data for the holding's ticker symbol.
+        var stockData = await GetStockData(holdingEntity.TickerSymbol);
+
+        // Get exange rate.
+        var exchangeRate = await GetExchangeRateFrankfurter(holdingEntity.CurrencyCode.ToString(), "PLN");
+
+        // Find all holdings for the user from the database.
+        var holdingsFromDb = await _dbContext.Holdings
+            .Where(h => h.UserId == holdingEntity.UserId)
+            .ToListAsync();
+
+        decimal totalCurrentValue = 0;
+
+        foreach (var holding in holdingsFromDb)
+        {
+            // Calculate total current value by multiplying the current stock price, current exchange rate, and quantity.
+            totalCurrentValue += ((await GetStockData(holding.TickerSymbol))?.CurrentPrice ?? 0)
+                * await GetExchangeRateFrankfurter(holding.CurrencyCode.ToString(), "PLN") * holding.Quantity;
+        }
+
+        if (holdingEntity != null)
         {
             return new HoldingDTO
             {
@@ -72,10 +133,17 @@ public class HoldingService : IHoldingService
                 StockName = holdingEntity.StockName,
                 Quantity = holdingEntity.Quantity,
                 BuyPrice = holdingEntity.BuyPrice,
-                CurrentPrice = (await GetStockData(holdingEntity.TickerSymbol))?.CurrentPrice ?? 0,
+                CurrentPrice = stockData?.CurrentPrice ?? 0,
+                CurrentHoldingValue = stockData?.CurrentPrice ?? 0 * 
+                holdingEntity.Quantity * exchangeRate,
                 CurrencyCode = holdingEntity.CurrencyCode,
-                CurrentCurrencyPrice = await GetExchangeRateFrankfurter(holdingEntity.CurrencyCode.ToString(), "PLN"),
                 CurrencyPriceWhenBought = holdingEntity.CurrencyPrice,
+                CurrentCurrencyPrice = exchangeRate,
+                PercentageChange = CalculatePercentageChange(holdingEntity.BuyPrice, stockData?.CurrentPrice ?? 0),
+                PercentageChangeWithCurrencyChangesCalculated =
+                    CalculatePercentageChange(holdingEntity.BuyPrice * holdingEntity.CurrencyPrice, stockData?.CurrentPrice * exchangeRate ?? 0),
+                PortfolioPercentage = ((stockData?.CurrentPrice ?? 0) *
+                holdingEntity.Quantity * exchangeRate) / totalCurrentValue * 100,
                 UserId = holdingEntity.UserId
             };
         }
@@ -102,15 +170,15 @@ public class HoldingService : IHoldingService
         if (currentDataOfThisHolding != null) {
             // Calculate the new average buy price based on the existing quantity and buy price, and the new quantity and buy price.
             currentDataOfThisHolding.BuyPrice = 
-                ((currentDataOfThisHolding.BuyPrice * (decimal)currentDataOfThisHolding.Quantity) + 
-                (createHoldingDTO.BuyPrice * (decimal)createHoldingDTO.Quantity)) / 
-                (decimal)(currentDataOfThisHolding.Quantity + createHoldingDTO.Quantity);
+                ((currentDataOfThisHolding.BuyPrice * currentDataOfThisHolding.Quantity) + 
+                (createHoldingDTO.BuyPrice * createHoldingDTO.Quantity)) / 
+                (currentDataOfThisHolding.Quantity + createHoldingDTO.Quantity);
             // Calculate the new average currency price based on the existing quantity and currency price,
             // and the new quantity and currency price.
             currentDataOfThisHolding.CurrencyPrice =
-                ((currentDataOfThisHolding.CurrencyPrice * (decimal)currentDataOfThisHolding.Quantity) +
-                ((decimal)createHoldingDTO.CurrencyPrice * (decimal)createHoldingDTO.Quantity)) /
-                (decimal)(currentDataOfThisHolding.Quantity + createHoldingDTO.Quantity);
+                ((currentDataOfThisHolding.CurrencyPrice * currentDataOfThisHolding.Quantity) +
+                ((decimal)createHoldingDTO.CurrencyPrice * createHoldingDTO.Quantity)) /
+                (currentDataOfThisHolding.Quantity + createHoldingDTO.Quantity);
 
             currentDataOfThisHolding.Quantity += createHoldingDTO.Quantity;
 
@@ -174,10 +242,45 @@ public class HoldingService : IHoldingService
 
     private async Task<StockDataResponse?> GetStockData(string symbol)
     {
-        string url = $"https://finnhub.io/api/v1/quote?symbol={symbol}&token={_apiKey}";
+        try
+        {
+            // Zapytanie do Yahoo Finance o konkretne pola
+            var query = await Yahoo.Symbols(symbol)
+                                   .Fields(Field.RegularMarketPrice,
+                                           Field.Currency,
+                                           Field.LongName,
+                                           Field.RegularMarketTime)
+                                   .QueryAsync();
 
-        var response = await _client.GetFromJsonAsync<StockDataResponse>(url);
+            if (!query.ContainsKey(symbol))
+            {
+                return null; // Lub rzuć wyjątek, jeśli symbol jest błędny
+            }
 
-        return response;
+            var ticker = query[symbol];
+
+            // Mapujemy wynik na naszą klasę StockData
+            return new StockDataResponse
+            {
+                Symbol = symbol,
+                Name = ticker.LongName,
+                CurrentPrice = (decimal)ticker.RegularMarketPrice,
+                Currency = ticker.Currency,
+                // Przeliczamy czas z formatu Unix na DateTime
+                LastTradeTime = DateTimeOffset.FromUnixTimeSeconds(ticker.RegularMarketTime).DateTime
+            };
+        }
+        catch (Exception ex)
+        {
+            // Logowanie błędu (opcjonalnie)
+            throw new Exception($"Nie udało się pobrać danych dla {symbol}: {ex.Message}");
+        }
+    }
+
+    // Calculate the percentage change between the buy price and the current price.
+    private decimal CalculatePercentageChange(decimal buyPrice, decimal currentPrice)
+    {
+        if (buyPrice == 0) return 0; // Avoid division by zero
+        return ((currentPrice - buyPrice) / buyPrice) * 100;
     }
 }

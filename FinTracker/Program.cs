@@ -44,8 +44,9 @@ builder.Services.AddScoped<ICashService, CashService>();
 builder.Services.AddScoped<IDebtService, DebtService>();
 builder.Services.AddScoped<IHistoryService, HistoryService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IHoldingService, HoldingService>();
 // Automatically manages the lifecycle of network connections and prevents socket leaks (Socket Exhaustion).
-builder.Services.AddHttpClient<IHoldingService, HoldingService>();
+//builder.Services.AddHttpClient<IHoldingService, HoldingService>();
 
 // CORS configuration.
 builder.Services.AddCors(options =>
