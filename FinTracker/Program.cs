@@ -40,13 +40,15 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi("v1", options => { options.AddDocumentTransformer<BearerSecuritySchemeTransformer>(); });
 
+// Automatically manages the lifecycle of network connections and prevents socket leaks (Socket Exhaustion).
+builder.Services.AddScoped<IStockService, StockService>();
+builder.Services.AddHttpClient<ICurrencyService, CurrencyService>();
 builder.Services.AddScoped<ICashService, CashService>();
 builder.Services.AddScoped<IDebtService, DebtService>();
 builder.Services.AddScoped<IHistoryService, HistoryService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IHoldingService, HoldingService>();
-// Automatically manages the lifecycle of network connections and prevents socket leaks (Socket Exhaustion).
-//builder.Services.AddHttpClient<IHoldingService, HoldingService>();
+builder.Services.AddScoped<IPortfolioService, PortfolioService>();
 
 // CORS configuration.
 builder.Services.AddCors(options =>

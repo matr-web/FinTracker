@@ -6,11 +6,6 @@ namespace FinTracker.BLL.Services.Interfaces;
 public interface IHoldingService
 {
     /// <summary>
-    /// Get Portfolio for a given User.
-    /// </summary>
-    Task<PortfolioViewModel> GetPortfolioAsync(int userId);
-
-    /// <summary>
     /// Get Holding with given Id.
     /// </summary>
     Task<HoldingDTO?> GetHoldingAsync(int userId);

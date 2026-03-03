@@ -19,21 +19,6 @@ public class HoldingsController : ControllerBase
         _holdingService = holdingService;
     }
 
-    [HttpGet("GetAll")]
-    public async Task<ActionResult<IEnumerable<HoldingDTO>>> GetAllAsync()
-    {
-        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-
-        PortfolioViewModel portfolioViewModel = await _holdingService.GetPortfolioAsync(userId);
-
-        if (portfolioViewModel is null)
-        {
-            return NotFound(portfolioViewModel);
-        }
-
-        return Ok(portfolioViewModel);
-    }
-
     [HttpPost("Post")]
     public async Task<ActionResult> PostAsync([FromBody] CreateHoldingDTO createHoldingDTO)
     {

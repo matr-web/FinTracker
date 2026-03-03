@@ -3,6 +3,7 @@ using FinTracker.BLL.Services.Interfaces;
 using FinTracker.DAL.EF;
 using FinTracker.DAL.Entities;
 using FinTracker.Models.DTOs.CashDTOs;
+using FinTracker.Models.DTOs.DebtDTOs;
 using FinTracker.Models.Enums;
 using Microsoft.EntityFrameworkCore;
 
@@ -66,24 +67,29 @@ public class CashService : ICashService
                     );
         }
 
-        // Search for cash values with the same date.
+        // Search for cash values with the same cash user, type and date if given.
         var cashValuesWithTheSameDate = _dbContext.Cash
             .Where(c => c.UserId == userId 
             && c.CashType == createCashDTO.CashType
-            && c.Date == createCashDTO.Date);
+            && (!createCashDTO.Date.HasValue 
+            || (c.Date.Year == createCashDTO.Date.Value.Year && c.Date.Month == createCashDTO.Date.Value.Month)));
 
         //  If there are any, delete them, because we want to have only one cash value for each date.
-        if (cashValuesWithTheSameDate != null)
+        if (cashValuesWithTheSameDate != null && cashValuesWithTheSameDate.Count() > 0)
         { 
             _dbContext.Cash.RemoveRange(cashValuesWithTheSameDate); 
         }
+
+        DateTime today = DateTime.Today;
 
         var cashEntity = new CashEntity()
         {
             UserId = userId,
             Amount = createCashDTO.Amount,
             CashType = createCashDTO.CashType,
-            Date = createCashDTO.Date != null ? createCashDTO.Date.Value : DateOnly.FromDateTime(DateTime.Today)
+            Date = createCashDTO.Date != null ?
+            new DateOnly(createCashDTO.Date.Value.Year, createCashDTO.Date.Value.Month, 1) :
+            DateOnly.FromDateTime(new DateTime(today.Year, today.Month, 1)),
         };
 
         await _dbContext.Cash.AddAsync(cashEntity);

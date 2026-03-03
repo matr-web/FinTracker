@@ -14,6 +14,7 @@ public class FinTrackerDbContext : DbContext
     public DbSet<HoldingEntity> Holdings { get; set; }
     public DbSet<DebtEntity> Debts { get; set; }
     public DbSet<InstallmentEntity> Installments { get; set; }
+    public DbSet<PortfolioEntity> PortfolioEntities { get; set; }
     public DbSet<CashEntity> Cash { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -75,13 +76,30 @@ public class FinTrackerDbContext : DbContext
           .HasColumnType("decimal(18, 2)");
 
         modelBuilder.Entity<DebtEntity>().HasMany(d => d.Installments)
-           .WithOne(i => i.Debt)
-           .HasForeignKey(i => i.DebtId);
+           .WithOne(d => d.Debt)
+           .HasForeignKey(d => d.DebtId);
 
         // InstallmentEntity Configuration
         modelBuilder.Entity<InstallmentEntity>()
            .Property(i => i.AmountLeft)
            .HasColumnType("decimal(18, 2)");
+
+        // PortfolioEntity Configuration
+        modelBuilder.Entity<PortfolioEntity>()
+             .Property(p => p.ValueInvested)
+             .HasColumnType("decimal(18, 2)");
+
+        modelBuilder.Entity<PortfolioEntity>()
+            .Property(p => p.TotalValue)
+            .HasColumnType("decimal(18, 2)");
+
+        modelBuilder.Entity<PortfolioEntity>()
+            .Property(p => p.TotalPercentageChange)
+            .HasColumnType("decimal(18, 4)");
+
+        modelBuilder.Entity<PortfolioEntity>()
+            .Property(h => h.Date)
+            .HasColumnType("date");
 
         // CashEntity Configuration
         modelBuilder.Entity<CashEntity>()
