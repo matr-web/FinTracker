@@ -33,6 +33,21 @@ public class PortfolioController : ControllerBase
         return Ok(portfolioViewModel);
     }
 
+    [HttpGet("GetPortfolioHistory")]
+    public ActionResult<IQueryable<PortfolioDTO>> GetPortfolioHistory()
+    {
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+        var portfolioHistoryResults = _portfolioService.GetPortfolioHistory(userId);
+
+        if (portfolioHistoryResults is null)
+        {
+            return NotFound(portfolioHistoryResults);
+        }
+
+        return Ok(portfolioHistoryResults);
+    }
+
     [HttpPost("SaveCurrentPortfolio")]
     public async Task<ActionResult> SaveCurrentPortfolio()
     {
