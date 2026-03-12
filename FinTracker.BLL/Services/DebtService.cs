@@ -19,7 +19,7 @@ public class DebtService : IDebtService
 
     public IEnumerable<SummedDebtDTO?> GetSummedDebt(int userId)
     {
-        // Find all debts of a given user and order them by the date.
+        // Find all debts of a given user.
         var debts = _dbContext.Debts
             .Include(d => d.Installments)
             .Where(d => d.UserId == userId);
@@ -74,6 +74,22 @@ public class DebtService : IDebtService
             {
                 // Find the data of the debt from the the nearest date.
                 var lastData = orderDebtData.Take(i).Last(d => d.Id == orderDebtData[i].Id);
+
+                // Check if there is a gap between the last date and the current date.
+                // If there is, add the data with the same amount but with the date from the gap.
+                if (orderDebtData[i].Date.Month - lastData.Date.Month > 1)
+                {
+                    var count = orderDebtData[i].Date.Month - lastData.Date.Month;
+
+                    for (int j = 1; j < count; j++)
+                    {
+                        result.Add(new SummedDebtDTO
+                        {
+                            Date = new DateOnly(lastData.Date.Year, lastData.Date.Month + j, lastData.Date.Day),
+                            AmountLeft = runningTotal
+                        });
+                    }
+                }
 
                 // Remove the amount of the debt from runningTotal given last time.
                 runningTotal = runningTotal - lastData.AmountLeft;

@@ -6,37 +6,77 @@ namespace FinTracker.BLL.Services.Interfaces;
 public interface IDebtService
 {
     /// <summary>
-    /// Get data on a user's total (summed) debt for each month in which they were in debt.
+    /// Retrieves a collection of summed debt information for the specified user.
     /// </summary>
+    /// <remarks>This method may return an empty collection if the user has no associated debt records. Ensure
+    /// that the userId is valid to avoid unexpected results.</remarks>
+    /// <param name="userId">The unique identifier of the user for whom the summed debt is being retrieved. Must be a positive integer.</param>
+    /// <returns>An enumerable collection of SummedDebtDTO objects representing the summed debt for the user. The collection may
+    /// contain null values if no debt records are found.</returns>
     IEnumerable<SummedDebtDTO?> GetSummedDebt(int userId);
 
     /// <summary>
-    /// Get all debts for a given user.
+    /// Retrieves all debts associated with the specified user.
     /// </summary>
+    /// <remarks>This method allows for efficient querying of debts and supports further filtering and sorting
+    /// operations on the returned IQueryable.</remarks>
+    /// <param name="userId">The unique identifier of the user whose debts are to be retrieved. Must be a positive integer.</param>
+    /// <returns>An IQueryable collection of DebtDTO objects representing the debts of the specified user. The collection may be
+    /// empty if the user has no debts.</returns>
     IQueryable<DebtDTO?> GetAllDebts(int userId);
 
     /// <summary>
-    /// Get a single debt element with given Id.
+    /// Retrieves a single debt record identified by the specified debt ID.
     /// </summary>
+    /// <remarks>This method may return null if no debt record matches the provided debt ID. Ensure that the
+    /// debt ID is valid before calling this method.</remarks>
+    /// <param name="debtId">The unique identifier of the debt to retrieve. Must be a positive integer.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains a DebtDTO object if the debt is
+    /// found; otherwise, null.</returns>
     Task<DebtDTO?> GetSingleDebtAsync(int debtId);
 
     /// <summary>
-    /// Repay a installment of given debt.
+    /// Processes the repayment of a specific installment for a given debt asynchronously.
     /// </summary>
+    /// <remarks>Ensure that the provided debtId refers to a valid debt and that the repayInstallmentDTO
+    /// contains accurate and complete repayment details. The method does not update the debt if the repayment is
+    /// invalid or fails.</remarks>
+    /// <param name="debtId">The unique identifier of the debt for which the installment repayment is being made. Must correspond to an
+    /// existing debt.</param>
+    /// <param name="repayInstallmentDTO">An object containing the details of the repayment installment, including the amount and payment method. Must
+    /// provide valid repayment information.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains a DebtDTO object with updated debt
+    /// information if the repayment succeeds; otherwise, null if the repayment fails.</returns>
     Task<DebtDTO?> PayOffInstallmentAsync(int debtId, RepayInstallmentDTO repayInstallmentDTO);
 
     /// <summary>
-    /// Add new debt for given user.
+    /// Inserts a new debt record asynchronously and returns the unique identifier of the created debt.
     /// </summary>
+    /// <remarks>Validation is performed on the provided debt details. The method may throw exceptions if the
+    /// input data is invalid.</remarks>
+    /// <param name="createDebtDTO">The data transfer object containing the details of the debt to be created. Must include all required fields such
+    /// as amount and description.</param>
+    /// <param name="userId">The identifier of the user associated with the debt. Must be a valid user ID.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the unique identifier of the newly
+    /// created debt record.</returns>
     Task<int> InsertDebtAsync(CreateDebtDTO createDebtDTO, int userId);
 
     /// <summary>
-    /// Delete single debt.
+    /// Deletes a single debt identified by the specified debt ID asynchronously.
     /// </summary>
+    /// <remarks>Ensure that the specified debt ID exists before calling this method to avoid exceptions. The
+    /// operation is performed asynchronously and does not return a result upon completion.</remarks>
+    /// <param name="debtId">The unique identifier of the debt to be deleted. Must be a positive integer.</param>
+    /// <returns>A task that represents the asynchronous operation of deleting the debt.</returns>
     Task DeleteSingleDebtAsync(int debtId);
 
     /// <summary>
-    /// Delete all debts for a given user.
+    /// Deletes all debts associated with the specified user asynchronously.
     /// </summary>
+    /// <remarks>Ensure that the specified user exists before calling this method to avoid exceptions. The
+    /// operation is performed asynchronously and may throw exceptions if the userId is invalid or does not correspond
+    /// to an existing user.</remarks>
+    /// <param name="userId">The unique identifier of the user whose debts are to be deleted. Must be a positive integer.</param>
+    /// <returns>A task that represents the asynchronous operation of deleting the user's debts.</returns>
     Task DeleteWholeDebtAsync(int userId);
 }
