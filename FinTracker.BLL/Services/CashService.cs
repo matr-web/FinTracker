@@ -131,21 +131,26 @@ public class CashService : ICashService
 
     /// <summary>
     /// Asynchronously deletes a cash record identified by its unique identifier. 
-    /// If no record with the specified identifier exists, an ArgumentOutOfRangeException is thrown.
+    /// If no record with the specified identifier exists 
+    /// or if the record does not belong to the specified user, an ArgumentOutOfRangeException is thrown.
     /// </summary>
     /// <param name="cashId">The unique identifier of the cash record to delete.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
-    /// <exception cref="ArgumentException">Thrown if no cash record with the specified identifier exists.</exception>
-    public async Task DeleteCashAsync(int cashId)
+    /// <param name="userId">The unique identifier of the user who owns the cash record.</param>    
+    /// <returns>A task that represents the asynchronous operation. The task result contains a boolean indicating whether the deletion was successful.</returns>
+    /// <exception cref="ArgumentException">Thrown if no cash record with the specified identifier exists
+    /// or if the record does not belong to the specified user.</exception>
+    public async Task<bool> DeleteCashAsync(int userId, int cashId)
     {
-        // ExecuteDeleteAsync sends "DELETE FROM Cash WHERE Id = @id" directly to the database
+        // ExecuteDeleteAsync sends "DELETE FROM Cash WHERE Id = @id AND UserId = @userId" directly to the database
         int deletedRows = await _dbContext.Cash
-            .Where(d => d.Id == cashId)
+            .Where(d => d.Id == cashId && d.UserId == userId)
             .ExecuteDeleteAsync();
 
         if (deletedRows == 0)
         {
             throw new ArgumentException($"There was no cash record with given id: {cashId}");
         }
+
+        return true;
     }
 }

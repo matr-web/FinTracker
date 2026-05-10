@@ -26,7 +26,7 @@ public interface ICashService
     Task<int> InsertCashAsync(int userId, CreateCashDTO createCashDTO);
 
     /// <summary>
-    /// Delete single debt.
+    /// Delete single cash record.
     /// </summary>
-    Task DeleteCashAsync(int cashId);
+    Task<bool> DeleteCashAsync(int userId, int cashId);
 }
