@@ -8,8 +8,11 @@ namespace FinTracker.BLL.Mappers;
 public class PortfolioMapper
 {
     /// <summary>
-    /// Static mapping expression from DebtEntity to DebtDTO.
+    /// Gets an expression that projects a PortfolioEntity to a PortfolioDTO for use in LINQ queries.
     /// </summary>
+    /// <remarks>This projection can be used with Entity Framework or other LINQ providers to efficiently
+    /// select only the required fields from the data source. The resulting PortfolioDTO includes related User information if
+    /// available.</remarks>
     public static Expression<Func<PortfolioEntity, PortfolioDTO>> Projection =>
     p => new PortfolioDTO
     {

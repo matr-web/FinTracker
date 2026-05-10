@@ -13,6 +13,12 @@ public class CurrencyService : ICurrencyService
         _httpClient = httpClient;
     }
 
+    /// <summary>
+    /// Gets the exchange rate between two currencies using the Frankfurter API. If the rate is not found, it returns 1.
+    /// </summary>
+    /// <param name="fromCurrency"></param>
+    /// <param name="toCurrency"></param>
+    /// <returns></returns>
     public async Task<decimal> GetExchangeRateFrankfurterAsync(string fromCurrency, string toCurrency)
     {
         // URL for Frankfurter: https://api.frankfurter.app/latest?from=USD&to=PLN
@@ -29,9 +35,9 @@ public class CurrencyService : ICurrencyService
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Błąd: {ex.Message}");
+            Console.WriteLine($"Exception: {ex.Message}");
         }
 
-        return 1m; // Return 1 if there's an error or if the rate is not found.
+        return 1m; // Return 1 if the rate is not found.
     }
 }

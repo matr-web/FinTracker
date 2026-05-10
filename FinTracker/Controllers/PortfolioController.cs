@@ -25,7 +25,7 @@ public class PortfolioController : ControllerBase
 
         PortfolioViewModel portfolioViewModel = await _portfolioService.GetPortfolioAsync(userId);
 
-        if (portfolioViewModel is null)
+        if (portfolioViewModel == null)
         {
             return NotFound(portfolioViewModel);
         }
@@ -40,7 +40,7 @@ public class PortfolioController : ControllerBase
 
         var portfolioHistoryResults = _portfolioService.GetPortfolioHistory(userId);
 
-        if (portfolioHistoryResults is null)
+        if (portfolioHistoryResults == null)
         {
             return NotFound(portfolioHistoryResults);
         }

@@ -21,12 +21,26 @@ namespace FinTracker.WebAPI.Controllers
         }
 
         // GET: api/<CashController>
-        [HttpGet("CashHistory")]
-        public ActionResult<IEnumerable<CashDTO>> GetHistory([FromQuery][EnumDataType(typeof(CashType))] CashType cashType)
+        /// <summary>
+        /// Get cash history for a user. You need to specify the type of cash and optionally the period of time (in months) 
+        /// for which you want to retrieve the history. If the period of time is not specified, it will return all history for the specified cash type.
+        /// </summary>
+        /// <param name="cashType">The type of cash for which to retrieve the history.</param>
+        /// <param name="periodOfTime">The period of time (in months) for which to retrieve the history. If not specified, all history will be returned.</param>
+        /// <returns>A list of cash history records.</returns>
+        [HttpGet("GetHistory/{cashType}")]
+        public async Task<ActionResult<IEnumerable<CashDTO>>> GetHistoryAsync(
+            [FromRoute][EnumDataType(typeof(CashType))] CashType cashType,
+            [FromQuery] int? periodOfTime)
         {
+            if(periodOfTime < 0)
+            {
+                return BadRequest("Period of time cannot be negative.");
+            }
+
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-            var cashHistory = _cashService.GetCashHistory(userId, cashType);
+            var cashHistory = await _cashService.GetCashHistoryAsync(userId, cashType, periodOfTime);
 
             if (cashHistory == null)
             {

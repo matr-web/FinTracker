@@ -9,8 +9,11 @@ namespace FinTracker.BLL.Mappers;
 public class DebtMapper
 {
     /// <summary>
-    /// Static mapping expression from DebtEntity to DebtDTO.
+    /// Gets an expression that projects a DebtEntity to a DebtDTO for use in LINQ queries.
     /// </summary>
+    /// <remarks>This projection can be used with Entity Framework or other LINQ providers to efficiently
+    /// select only the required fields from the data source. The resulting DebtDTO includes related User and Installments information if
+    /// available.</remarks>
     public static Expression<Func<DebtEntity, DebtDTO>> Projection =>
     d => new DebtDTO
     {

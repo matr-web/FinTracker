@@ -8,7 +8,7 @@ public interface ICashService
     /// <summary>
     /// Get whole cash history for a given user.
     /// </summary>
-    IQueryable<CashDTO?> GetCashHistory(int userId, CashType cashType);
+    Task<List<CashDTO>> GetCashHistoryAsync(int userId, CashType cashType, int? periodOfTime);
 
     /// <summary>
     /// Get current cash value for a given user.

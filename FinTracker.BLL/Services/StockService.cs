@@ -6,18 +6,11 @@ namespace FinTracker.BLL.Services;
 
 public class StockService : IStockService
 {
-    private readonly HttpClient _httpClient;
-
-    public StockService(HttpClient httpClient)
-    {
-        _httpClient = httpClient;
-    }
-
     public async Task<StockDataResponse?> GetStockDataAsync(string symbol)
     {
         try
         {
-            // Zapytanie do Yahoo Finance o konkretne pola
+            // Ask Yahoo Finance API for the stock data using the provided symbol
             var query = await Yahoo.Symbols(symbol)
                                    .Fields(Field.RegularMarketPrice,
                                            Field.Currency,
@@ -27,25 +20,25 @@ public class StockService : IStockService
 
             if (!query.ContainsKey(symbol))
             {
-                return null; // Lub rzuć wyjątek, jeśli symbol jest błędny
+                return null; // Return null if the symbol is not found in the response
             }
 
             var ticker = query[symbol];
 
-            // Mapujemy wynik na naszą klasę StockData
+            // Map the data from the Yahoo Finance API to our StockDataResponse model
             return new StockDataResponse
             {
                 Symbol = symbol,
                 Name = ticker.LongName,
                 CurrentPrice = (decimal)ticker.RegularMarketPrice,
                 Currency = ticker.Currency,
-                // Przeliczamy czas z formatu Unix na DateTime
+                // Convert the Unix timestamp to a DateTime object
                 LastTradeTime = DateTimeOffset.FromUnixTimeSeconds(ticker.RegularMarketTime).DateTime
             };
         }
         catch (Exception ex)
         {
-            // Logowanie błędu (opcjonalnie)
+            // Log the exception or handle it as needed. For now, we rethrow it with a custom message.
             throw new Exception($"Nie udało się pobrać danych dla {symbol}: {ex.Message}");
         }
     }

@@ -1,6 +1,5 @@
 ﻿using FinTracker.BLL.Services.Interfaces;
 using FinTracker.Models.DTOs.UserDTOs;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FinTracker.WebAPI.Controllers;
