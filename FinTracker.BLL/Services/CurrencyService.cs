@@ -14,30 +14,50 @@ public class CurrencyService : ICurrencyService
     }
 
     /// <summary>
-    /// Gets the exchange rate between two currencies using the Frankfurter API. If the rate is not found, it returns 1.
+    /// Gets the exchange rate between two currencies using the Frankfurter API. 
     /// </summary>
-    /// <param name="fromCurrency"></param>
-    /// <param name="toCurrency"></param>
-    /// <returns></returns>
-    public async Task<decimal> GetExchangeRateFrankfurterAsync(string fromCurrency, string toCurrency)
+    /// <param name="fromCurrency">The currency to convert from.</param>
+    /// <param name="toCurrency">The currency to convert to.</param>
+    /// <returns>The exchange rate between the two currencies.</returns>
+    public async Task<decimal> GetExchangeRateAsync(string fromCurrency, string toCurrency)
     {
-        // URL for Frankfurter: https://api.frankfurter.app/latest?from=USD&to=PLN
+        // 1. Validate input - ensure that currency codes are not null, empty, or whitespace
+        if (string.IsNullOrWhiteSpace(fromCurrency) || string.IsNullOrWhiteSpace(toCurrency))
+            throw new ArgumentException("Currency codes cannot be empty.");
+
+        // if both currencies are the same, return 1 immediately
+        if (string.Equals(fromCurrency, toCurrency, StringComparison.OrdinalIgnoreCase))
+            return 1m;
+
+        // 2. Ensure currency codes are in uppercase as required by the API
+        fromCurrency = fromCurrency.ToUpper();
+        toCurrency = toCurrency.ToUpper();
+
+        // 3. Build the API URL
         string url = $"https://api.frankfurter.app/latest?from={fromCurrency}&to={toCurrency}";
 
         try
         {
+            // 4. Make the API call and parse the response
             var response = await _httpClient.GetFromJsonAsync<FrankfurterResponse>(url);
 
-            if (response != null && response.Rates.ContainsKey(toCurrency))
+            // 5. Check if the response contains the expected data and return the exchange rate
+            if (response?.Rates != null && response.Rates.TryGetValue(toCurrency, out decimal rate))
             {
-                return response.Rates[toCurrency];
+                return rate;
             }
+
+            // 6. If we reach here, it means the expected rate was not found in the response
+            throw new Exception($"Rate for {toCurrency} not found in response.");
+        }
+        // 7. Handle potential exceptions that may occur during the API call
+        catch (HttpRequestException ex)
+        {
+            throw new HttpRequestException("Network error while fetching currency exchange rate from Frankfurter.", ex);
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Exception: {ex.Message}");
+            throw new Exception("Unexpected error while fetching currency exchange rate.", ex);
         }
-
-        return 1m; // Return 1 if the rate is not found.
     }
 }

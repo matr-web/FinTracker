@@ -39,7 +39,7 @@ public class PortfolioService : IPortfolioService
         var ratesCache = new Dictionary<string, decimal>();
         foreach (var code in uniqueCurrencies)
         {
-            ratesCache[code] = await _currencyService.GetExchangeRateFrankfurterAsync(code, "PLN");
+            ratesCache[code] = await _currencyService.GetExchangeRateAsync(code, "PLN");
         }
 
         var holdingsCache = new Dictionary<string, StockDataResponse?>();

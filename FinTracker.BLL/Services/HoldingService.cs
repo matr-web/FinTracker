@@ -34,7 +34,7 @@ public class HoldingService : IHoldingService
         var stockData = await _stockService.GetStockDataAsync(holdingEntity.TickerSymbol);
 
         // Get exange rate.
-        var exchangeRate = await _currencyService.GetExchangeRateFrankfurterAsync(holdingEntity.CurrencyCode.ToString(), "PLN");
+        var exchangeRate = await _currencyService.GetExchangeRateAsync(holdingEntity.CurrencyCode.ToString(), "PLN");
 
         // Find all holdings for the user from the database.
         var holdingsFromDb = await _dbContext.Holdings
@@ -91,7 +91,7 @@ public class HoldingService : IHoldingService
         // and set it as the CurrencyPrice.
         if (createHoldingDTO.CurrencyPrice == null)
         {
-            createHoldingDTO.CurrencyPrice = await _currencyService.GetExchangeRateFrankfurterAsync(createHoldingDTO.CurrencyCode.ToString(), "PLN");
+            createHoldingDTO.CurrencyPrice = await _currencyService.GetExchangeRateAsync(createHoldingDTO.CurrencyCode.ToString(), "PLN");
         }
 
         // Update the existing holding if it exists, otherwise create a new one. 
