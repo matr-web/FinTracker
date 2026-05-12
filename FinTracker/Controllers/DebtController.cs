@@ -19,11 +19,11 @@ public class DebtController : ControllerBase
     }
 
     [HttpGet("GetAll")]
-    public ActionResult<IEnumerable<DebtDTO?>> GetAll()
+    public async Task<ActionResult<IEnumerable<DebtDTO?>>> GetAll()
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-        var debtDtos = _debtService.GetAllDebts(userId).AsEnumerable();
+        var debtDtos = await _debtService.GetAllDebtsAsync(userId);
 
         if (debtDtos is null)
         {
@@ -47,12 +47,11 @@ public class DebtController : ControllerBase
     }
 
     [HttpGet("GetSummed")]
-    public ActionResult<IEnumerable<SummedDebtDTO?>> GetSummed()
+    public async Task<ActionResult<IEnumerable<SummedDebtDTO?>>> GetSummed()
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-        var summedDebtDtos = _debtService.GetSummedDebt(userId).AsEnumerable();
-
+        var summedDebtDtos = await _debtService.GetSummedDebtAsync(userId);
         if (summedDebtDtos is null)
         {
             return NotFound(summedDebtDtos);
@@ -62,7 +61,7 @@ public class DebtController : ControllerBase
     }
 
     [HttpPost("PayOff/{debtId}")]
-    public async Task<ActionResult> PayOffInstallmentAsync([FromRoute]int debtId, RepayInstallmentDTO repayInstallmentDTO)
+    public async Task<ActionResult> PayOffInstallmentAsync([FromRoute]int debtId,[FromBody] RepayInstallmentDTO repayInstallmentDTO)
     {
         var debtDTO = await _debtService.PayOffInstallmentAsync(debtId, repayInstallmentDTO);
 
@@ -91,6 +90,8 @@ public class DebtController : ControllerBase
     [HttpDelete("Delete/{debtId}")]
     public async Task<ActionResult> DeleteAsync([FromRoute] int debtId)
     {
+        var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
         var debtDTO = await _debtService.GetSingleDebtAsync(debtId);
 
         if (debtDTO == null)
@@ -98,7 +99,7 @@ public class DebtController : ControllerBase
             return NotFound();
         }
 
-        await _debtService.DeleteSingleDebtAsync(debtId);
+        await _debtService.DeleteSingleDebtAsync(userId, debtId);
 
         return NoContent();
     }
@@ -108,7 +109,7 @@ public class DebtController : ControllerBase
     {
         var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-        var userDebtDTOs = _debtService.GetAllDebts(userId);
+        var userDebtDTOs = await _debtService.GetAllDebtsAsync(userId);
 
         if (userDebtDTOs == null || !userDebtDTOs.Any())
         {
