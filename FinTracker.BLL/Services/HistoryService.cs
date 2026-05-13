@@ -1,4 +1,5 @@
-﻿using FinTracker.BLL.Services.Interfaces;
+﻿using FinTracker.BLL.Mappers;
+using FinTracker.BLL.Services.Interfaces;
 using FinTracker.DAL.EF;
 using FinTracker.DAL.Entities;
 using FinTracker.Models.DTOs.HistoryDTOs;
@@ -15,56 +16,25 @@ public class HistoryService : IHistoryService
         _dbContext = dbContext;
     }
 
-    public IEnumerable<HistoryDTO> GetHistory(int userId)
+    /// <inheritdoc cref="IHistoryService.GetHistoryAsync" />
+    public async Task<IEnumerable<HistoryDTO>> GetHistoryAsync(int userId)
     {
-        return _dbContext.Histories
+        return await _dbContext.Histories
             .Where(h => h.UserId == userId)
-            .Select(h => new HistoryDTO
-            {
-                Id = h.Id,
-                AssetName = h.AssetName,
-                Ticker = h.Ticker,
-                AssetType = h.AssetType,
-                Operation = h.Operation,
-                Quantity = h.Quantity,
-                PricePerUnit = h.PricePerUnit,
-                CurrencyCode = h.CurrencyCode,
-                CurrencyPrice = h.CurrencyPrice,
-                Description = h.Description,
-                Date = h.Date,
-                Profit = h.Profit,
-                UserId = userId
-            });
+            .Select(HistoryMapper.Projection)
+            .ToListAsync();
     }
 
-    public async Task<HistoryDTO?> GetHistoryElementAsync(int historyId)
+    /// <inheritdoc cref="IHistoryService.GetSingleHistoryElementAsync" />
+    public async Task<HistoryDTO?> GetSingleHistoryElementAsync(int userId, int historyId)
     {
-        var userEntity = await _dbContext.Histories
-            .FirstOrDefaultAsync(h => h.Id == historyId);
-
-        if (userEntity != null)
-        {
-            return new HistoryDTO
-            {
-                Id = userEntity.Id,
-                AssetName = userEntity.AssetName,
-                Ticker = userEntity.Ticker,
-                AssetType = userEntity.AssetType,
-                Operation = userEntity.Operation,
-                Quantity = userEntity.Quantity,
-                PricePerUnit = userEntity.PricePerUnit,
-                CurrencyCode = userEntity.CurrencyCode,
-                CurrencyPrice = userEntity.CurrencyPrice,
-                Description = userEntity.Description,
-                Date = userEntity.Date,
-                Profit = userEntity.Profit,
-                UserId = userEntity.UserId
-            };
-        }
-
-        return null;
+        return await _dbContext.Histories
+            .Where(h => h.Id == historyId && h.UserId == userId)
+            .Select(HistoryMapper.Projection)   
+            .FirstOrDefaultAsync();
     }
 
+    /// <inheritdoc cref="IHistoryService.InsertHistoryElementAsync" />
     public async Task<int> InsertHistoryElementAsync(CreateHistoryDTO createHistoryDTO, int userId)
     {
         var historyEntity = new HistoryEntity
@@ -94,25 +64,28 @@ public class HistoryService : IHistoryService
         return historyEntity.Id;
     }
 
-    public async Task DeleteSingleHistoryElementAsync(int historyId)
+    /// <inheritdoc cref="IHistoryService.DeleteSingleHistoryElementAsync" />
+    public async Task<bool> DeleteSingleHistoryElementAsync(int userId, int historyId)
     {
-        var obj = _dbContext.Histories.SingleOrDefault(h => h.Id == historyId);
+        var deletedRows = await _dbContext.Histories
+            .Where(h => h.Id == historyId && h.UserId == userId)
+            .ExecuteDeleteAsync();
 
-        if(obj != null)
+        if (deletedRows == 0)
         {
-            _dbContext.Histories.Remove(obj);
-            await _dbContext.SaveChangesAsync();
+            throw new ArgumentException($"There was no history record with given id: {historyId}");
         }
+
+        return true;
     }
 
-    public async Task DeleteWholeHistoryAsync(int userId)
+    /// <inheritdoc cref="IHistoryService.DeleteWholeHistoryAsync" />
+    public async Task<int> DeleteWholeHistoryAsync(int userId)
     {
-        var objects = _dbContext.Histories.Where(h => h.UserId == userId).ToList(); 
+        var deletedRows = await _dbContext.Histories
+            .Where(h => h.UserId == userId)
+            .ExecuteDeleteAsync();
 
-        if(objects.Count > 0)
-        {
-            _dbContext.Histories.RemoveRange(objects);
-            await _dbContext.SaveChangesAsync();
-        }
+        return deletedRows;
     }
 }

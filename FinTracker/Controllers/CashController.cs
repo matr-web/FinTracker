@@ -32,14 +32,14 @@ public class CashController : ControllerBase
     /// for which you want to retrieve the history. If the period of time is not specified, it will return all history for the specified cash type.
     /// </summary>
     /// <param name="cashType">The type of cash for which to retrieve the history.</param>
-    /// <param name="periodOfTime">The period of time (in months) for which to retrieve the history. If not specified, all history will be returned.</param>
+    /// <param name="monthsCount">The period of time (in months) for which to retrieve the history. If not specified, all history will be returned.</param>
     /// <returns>A list of cash history records.</returns>
     [HttpGet("GetHistory/{cashType}")]
     public async Task<ActionResult> GetHistoryAsync(
     [FromRoute] CashType cashType,
-    [FromQuery, Range(0, int.MaxValue)] int? periodOfTime)
+    [FromQuery, Range(0, int.MaxValue)] int? monthsCount)
     {
-        var cashHistory = await _cashService.GetCashHistoryAsync(CurrentUserId, cashType, periodOfTime);
+        var cashHistory = await _cashService.GetCashHistoryAsync(CurrentUserId, cashType, monthsCount);
 
         return Ok(cashHistory ?? Enumerable.Empty<CashDTO>());
     }

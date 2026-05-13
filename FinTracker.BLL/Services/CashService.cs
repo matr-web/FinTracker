@@ -17,18 +17,18 @@ public class CashService : ICashService
     }
 
     /// <inheritdoc cref="ICashService.GetCashHistoryAsync" />
-    public async Task<IEnumerable<CashDTO>> GetCashHistoryAsync(int userId, CashType cashType, int? periodOfTime)
+    public async Task<IEnumerable<CashDTO>> GetCashHistoryAsync(int userId, CashType cashType, int? monthsCount)
     {
         // Start with a query that filters cash records by userId and cashType
         var query = _dbContext.Cash
             .Where(c => c.UserId == userId && c.CashType == cashType);
 
         // If a period of time is specified
-        if (periodOfTime.HasValue)
+        if (monthsCount.HasValue)
         {
             return await query
                 .OrderByDescending(c => c.Date) // Order by date in descending order to get the most recent records first
-                .Take(periodOfTime.Value) // Take the specified number of most recent records
+                .Take(monthsCount.Value) // Take the specified number of most recent records
                 .Select(CashMapper.Projection) // Project to CashDTO
                 .OrderBy(c => c.Date) // Order the final result by date in ascending order before returning
                 .ToListAsync(); // Execute the query and return the results as a list
