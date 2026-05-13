@@ -4,7 +4,6 @@ using FinTracker.Models.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
-using System.Security.Claims;
 
 namespace FinTracker.WebAPI.Controllers;
 
@@ -14,18 +13,18 @@ namespace FinTracker.WebAPI.Controllers;
 public class CashController : ControllerBase
 {
     private readonly ICashService _cashService;
+    private readonly IUserService _userService;
 
-    public CashController(ICashService cashService)
+    public CashController(ICashService cashService, IUserService userService)
     {
         _cashService = cashService;
+        _userService = userService;
     }
 
     /// <summary>
-    /// Fetches the user ID from the claims of the authenticated user. 
-    /// This property is used to identify the user making the request 
-    /// and to ensure that cash data is retrieved or modified for the correct user. 
+    /// Returns the user ID if the user is authenticated; otherwise, throws an UnauthorizedAccessException.
     /// </summary>
-    protected int UserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+    private int CurrentUserId => _userService.UserId ?? throw new UnauthorizedAccessException();
 
     // GET: api/<CashController>
     /// <summary>
@@ -40,7 +39,7 @@ public class CashController : ControllerBase
     [FromRoute] CashType cashType,
     [FromQuery, Range(0, int.MaxValue)] int? periodOfTime)
     {
-        var cashHistory = await _cashService.GetCashHistoryAsync(UserId, cashType, periodOfTime);
+        var cashHistory = await _cashService.GetCashHistoryAsync(CurrentUserId, cashType, periodOfTime);
 
         return Ok(cashHistory ?? Enumerable.Empty<CashDTO>());
     }
@@ -54,7 +53,7 @@ public class CashController : ControllerBase
     [HttpGet("CurrentCash")]
     public async Task<ActionResult> GetCurrentCashAsync([FromQuery][EnumDataType(typeof(CashType))] CashType cashType)
     {
-        var currentCash = await _cashService.GetCurrentCashAsync(UserId, cashType);
+        var currentCash = await _cashService.GetCurrentCashAsync(CurrentUserId, cashType);
 
         if (currentCash == null)
             return NotFound();
@@ -67,10 +66,10 @@ public class CashController : ControllerBase
     /// </summary>
     /// <param name="id">The unique identifier of the cash record to retrieve.</param>
     /// <returns>An <see cref="ActionResult{CashDTO}"/> containing the cash record if found; otherwise, a NotFound result.</returns>
-    [HttpGet("GetCashById/{id}")]
-    public async Task<ActionResult<CashDTO>> GetSingleCashById(int id)
+    [HttpGet("{id}")]
+    public async Task<ActionResult<CashDTO>> GetSingleCashByIdAsync(int id)
     {
-        var cashDTO = await _cashService.GetSingleCashValueAsync(id);
+        var cashDTO = await _cashService.GetSingleCashValueAsync(CurrentUserId, id);
 
         if (cashDTO == null)
             return NotFound();
@@ -86,14 +85,14 @@ public class CashController : ControllerBase
     /// <param name="createCashDTO">An object containing the details of the cash record to insert, 
     /// including amount, cash type, and optional date.</param>
     /// <returns>The newly created cash record.</returns>
-    [HttpPost("PostCash")]
+    [HttpPost]
     public async Task<ActionResult> PostAsync([FromBody] CreateCashDTO createCashDTO)
     {
-        var cashId = await _cashService.InsertCashAsync(UserId, createCashDTO);
+        var cashId = await _cashService.InsertCashAsync(CurrentUserId, createCashDTO);
 
-        var cashDTO = await _cashService.GetSingleCashValueAsync(cashId);
+        var cashDTO = await _cashService.GetSingleCashValueAsync(CurrentUserId, cashId);
 
-        return CreatedAtAction(nameof(GetSingleCashById), new { id = cashId }, cashDTO);
+        return CreatedAtAction(nameof(GetSingleCashByIdAsync), new { id = cashId }, cashDTO);
     }
 
     // DELETE api/<CashController>/5
@@ -102,10 +101,10 @@ public class CashController : ControllerBase
     /// </summary>
     /// <param name="cashId">The unique identifier of the cash record to delete.</param>
     /// <returns>No content if the deletion is successful, or NotFound if a record with the specified identifier and user ID does not exist.</returns>
-    [HttpDelete("Delete/{cashId}")]
+    [HttpDelete("{cashId}")]
     public async Task<ActionResult> DeleteAsync([FromRoute] int cashId)
     {
-        var result = await _cashService.DeleteCashAsync(UserId, cashId);
+        var result = await _cashService.DeleteCashAsync(CurrentUserId, cashId);
 
         if (!result)
             return NotFound();

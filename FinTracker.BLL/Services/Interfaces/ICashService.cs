@@ -11,10 +11,10 @@ public interface ICashService
     /// </summary>
     /// <param name="userId">The unique identifier of the user whose cash history is to be retrieved.</param>
     /// <param name="cashType">The type of cash transactions to include in the history.</param>
-    /// <param name="periodOfTime">The maximum number of records to return. If null, all matching records are returned.</param>
+    /// <param name="monthsCount">The maximum number of months to return. If null, all matching records are returned.</param>
     /// <returns>An IQueryable of CashDTO objects representing the user's saved cash amount history, filtered by the specified
     /// cash type(SavingAccount or PPK) and limited by the period of time if provided.</returns>
-    Task<IEnumerable<CashDTO>> GetCashHistoryAsync(int userId, CashType cashType, int? periodOfTime);
+    Task<IEnumerable<CashDTO>> GetCashHistoryAsync(int userId, CashType cashType, int? monthsCount);
 
     /// <summary>
     /// Gets the most recent cash amount record for a specified user and cash type(SavingAccount or PPK). 
@@ -31,7 +31,7 @@ public interface ICashService
     /// </summary>
     /// <param name="cashId">The unique identifier of the cash record to retrieve.</param>
     /// <returns>A CashDTO representing the cash record with the specified identifier, or null if no record is found.</returns>
-    Task<CashDTO?> GetSingleCashValueAsync(int cashId);
+    Task<CashDTO?> GetSingleCashValueAsync(int userId, int cashId);
 
     /// <summary>
     /// Asynchronously inserts a new cash record for the specified user, replacing any existing record for the same

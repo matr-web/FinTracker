@@ -6,6 +6,9 @@ namespace FinTracker.BLL.Services.Interfaces;
 
 public interface IUserService
 {
+
+    int? UserId { get; }
+
     /// <summary>
     /// Get a specific User that fulfill given filterExpression.
     /// </summary>

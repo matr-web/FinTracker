@@ -11,16 +11,31 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq.Expressions;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.AspNetCore.Http;
 
 namespace FinTracker.BLL.Services;
 
 public class UserService : IUserService
 {
     private readonly FinTrackerDbContext _context;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public UserService(FinTrackerDbContext context)
+    public UserService(FinTrackerDbContext context, IHttpContextAccessor httpContextAccessor)
     {
         _context = context;
+        _httpContextAccessor = httpContextAccessor;
+    }
+
+    public int? UserId
+    {
+        get 
+        {
+            var user = _httpContextAccessor.HttpContext?.User;
+
+            var idString = user?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            return int.TryParse(idString, out var id) ? id : null;
+        }
     }
 
     public string GenerateToken(UserDTO userDTO)

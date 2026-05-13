@@ -19,7 +19,7 @@ public class DebtService : IDebtService
     }
 
     /// <inheritdoc cref="IDebtService.GetSummedDebtAsync" />
-    public async Task<IEnumerable<SummedDebtDTO>?> GetSummedDebtAsync(int userId)
+    public async Task<IEnumerable<SummedDebtDTO>?> GetSummedDebtAsync(int userId, int? monthsCount)
     {
         // 1. Get all debts of the user with their installments, but only the necessary data
         // (Id, Amount, Date for debts and AmountLeft, RepaymentDate for installments).
@@ -85,7 +85,8 @@ public class DebtService : IDebtService
             currentDate = currentDate.AddMonths(1);
         }
 
-        return result;
+        // 4. If the user specified a period of time, take only the last "monthsCount" months from the result. Else return everything.
+        return monthsCount == null ? result : result.TakeLast(monthsCount.Value);
     }
 
     /// <inheritdoc cref="IDebtService.GetAllDebtsAsync" />
@@ -98,10 +99,10 @@ public class DebtService : IDebtService
     }
 
     /// <inheritdoc cref="IDebtService.GetSingleDebtAsync" />
-    public async Task<DebtDTO?> GetSingleDebtAsync(int debtId)
+    public async Task<DebtDTO?> GetSingleDebtAsync(int userId, int debtId)
     {
         return await _dbContext.Debts
-            .Where(d => d.Id == debtId)
+            .Where(d => d.Id == debtId && d.UserId == userId)
             .Select(DebtMapper.Projection)
             .FirstOrDefaultAsync();
     }
@@ -130,12 +131,12 @@ public class DebtService : IDebtService
     }
 
     /// <inheritdoc cref="IDebtService.PayOffInstallmentAsync" />
-    public async Task<DebtDTO?> PayOffInstallmentAsync(int debtId, RepayInstallmentDTO repayInstallmentDTO)
+    public async Task<DebtDTO?> PayOffInstallmentAsync(int userId, int debtId, RepayInstallmentDTO repayInstallmentDTO)
     {
         // 1. Find the debt that needs to be repaid. 
         var debt = await _dbContext.Debts
             .Include(d => d.Installments)
-            .FirstOrDefaultAsync(d => d.Id == debtId && !d.IsPaidOff);
+            .FirstOrDefaultAsync(d => d.Id == debtId && d.UserId == userId && !d.IsPaidOff);
 
         // 2. If there is no such debt, throw an exception.
         if (debt == null)
@@ -186,7 +187,7 @@ public class DebtService : IDebtService
         await _dbContext.SaveChangesAsync();
 
         // 10. Return the updated debt with the new installment
-        return await GetSingleDebtAsync(debtId);
+        return await GetSingleDebtAsync(userId, debtId);
     }
 
     /// <inheritdoc cref="IDebtService.DeleteSingleDebtAsync" />

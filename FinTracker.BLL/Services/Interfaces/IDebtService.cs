@@ -13,7 +13,7 @@ public interface IDebtService
     /// <param name="userId">The unique identifier of the user for whom the summed debt is being retrieved. Must be a positive integer.</param>
     /// <returns>An enumerable collection of SummedDebtDTO objects representing the summed debt for the user. The collection may
     /// contain null values if no debt records are found.</returns>
-    Task<IEnumerable<SummedDebtDTO>?> GetSummedDebtAsync(int userId);
+    Task<IEnumerable<SummedDebtDTO>?> GetSummedDebtAsync(int userId, int? periodOfTime);
 
     /// <summary>
     /// Retrieves all debts associated with the specified user.
@@ -33,7 +33,7 @@ public interface IDebtService
     /// <param name="debtId">The unique identifier of the debt to retrieve. Must be a positive integer.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains a DebtDTO object if the debt is
     /// found; otherwise, null.</returns>
-    Task<DebtDTO?> GetSingleDebtAsync(int debtId);
+    Task<DebtDTO?> GetSingleDebtAsync(int userId, int debtId);
 
     /// <summary>
     /// Processes the repayment of a specific installment for a given debt asynchronously.
@@ -47,7 +47,7 @@ public interface IDebtService
     /// provide valid repayment information.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains a DebtDTO object with updated debt
     /// information if the repayment succeeds; otherwise, null if the repayment fails.</returns>
-    Task<DebtDTO?> PayOffInstallmentAsync(int debtId, RepayInstallmentDTO repayInstallmentDTO);
+    Task<DebtDTO?> PayOffInstallmentAsync(int userId, int debtId, RepayInstallmentDTO repayInstallmentDTO);
 
     /// <summary>
     /// Inserts a new debt record asynchronously and returns the unique identifier of the created debt.

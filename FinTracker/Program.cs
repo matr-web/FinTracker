@@ -41,6 +41,7 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi("v1", options => { options.AddDocumentTransformer<BearerSecuritySchemeTransformer>(); });
 
 // Automatically manages the lifecycle of network connections and prevents socket leaks (Socket Exhaustion).
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IStockService, StockService>();
 builder.Services.AddHttpClient<ICurrencyService, CurrencyService>();
 builder.Services.AddScoped<ICashService, CashService>();

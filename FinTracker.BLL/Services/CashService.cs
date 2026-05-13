@@ -53,10 +53,10 @@ public class CashService : ICashService
     }
 
     /// <inheritdoc cref="ICashService.GetSingleCashValueAsync" />
-    public async Task<CashDTO?> GetSingleCashValueAsync(int cashId)
+    public async Task<CashDTO?> GetSingleCashValueAsync(int userId, int cashId)
     {
         return await _dbContext.Cash
-        .Where(c => c.Id == cashId)
+        .Where(c => c.Id == cashId && c.UserId == userId)
         .Select(CashMapper.Projection) 
         .FirstOrDefaultAsync();
     }
