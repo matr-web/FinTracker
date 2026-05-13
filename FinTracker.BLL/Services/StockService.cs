@@ -6,32 +6,37 @@ namespace FinTracker.BLL.Services;
 
 public class StockService : IStockService
 {
+    /// <inheritdoc cref="IStockService.GetStockDataAsync" />
     public async Task<StockDataResponse?> GetStockDataAsync(string symbol)
     {
+        if (string.IsNullOrWhiteSpace(symbol))
+            throw new ArgumentException("Symbol cannot be null or whitespace", nameof(symbol));
+
+        var normalizedSymbol = symbol.Trim().ToUpperInvariant();
+
         try
         {
             // Ask Yahoo Finance API for the stock data using the provided symbol
-            var query = await Yahoo.Symbols(symbol)
+            var query = await Yahoo.Symbols(normalizedSymbol)
                                    .Fields(Field.RegularMarketPrice,
                                            Field.Currency,
                                            Field.LongName,
                                            Field.RegularMarketTime)
                                    .QueryAsync();
 
-            if (!query.ContainsKey(symbol))
+            if (!query.TryGetValue(normalizedSymbol, out var ticker))
             {
-                return null; // Return null if the symbol is not found in the response
+                // Return null if the symbol is not found in the response
+                return null;
             }
-
-            var ticker = query[symbol];
 
             // Map the data from the Yahoo Finance API to our StockDataResponse model
             return new StockDataResponse
             {
-                Symbol = symbol,
-                Name = ticker.LongName,
-                CurrentPrice = (decimal)ticker.RegularMarketPrice,
-                Currency = ticker.Currency,
+                Symbol = normalizedSymbol,
+                Name = ticker.LongName ?? "Unknown",
+                CurrentPrice = (Convert.ToDecimal(ticker.RegularMarketPrice)),
+                Currency = ticker.Currency ?? "Unknown",
                 // Convert the Unix timestamp to a DateTime object
                 LastTradeTime = DateTimeOffset.FromUnixTimeSeconds(ticker.RegularMarketTime).DateTime
             };
@@ -39,7 +44,7 @@ public class StockService : IStockService
         catch (Exception ex)
         {
             // Log the exception or handle it as needed. For now, we rethrow it with a custom message.
-            throw new Exception($"Nie udało się pobrać danych dla {symbol}: {ex.Message}");
+            throw new HttpRequestException($"Communication error with Yahoo Finance for symbol {normalizedSymbol}", ex);
         }
     }
 }
