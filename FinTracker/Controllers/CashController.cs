@@ -92,7 +92,7 @@ public class CashController : ControllerBase
 
         var cashDTO = await _cashService.GetSingleCashValueAsync(CurrentUserId, cashId);
 
-        return CreatedAtAction(nameof(GetSingleCashByIdAsync), new { id = cashId }, cashDTO);
+        return CreatedAtAction("GetSingleCashById", new { id = cashId }, cashDTO);
     }
 
     // DELETE api/<CashController>/5

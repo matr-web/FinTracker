@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace FinTracker.DAL.Entities;
+﻿namespace FinTracker.DAL.Entities;
 
 public class UserEntity
 {

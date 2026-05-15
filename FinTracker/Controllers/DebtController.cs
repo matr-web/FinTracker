@@ -44,7 +44,7 @@ public class DebtController : ControllerBase
     /// <param name="debtId">The unique identifier of the debt record to retrieve.</param>
     /// <returns>If the debt is found, returns an Ok response with the debt data.</returns>
     [HttpGet("{debtId}")]
-    public async Task<ActionResult<DebtDTO?>> GetSingleDebtAsync([FromRoute] int debtId)
+    public async Task<ActionResult<DebtDTO?>> GetSingleDebtByIdAsync([FromRoute] int debtId)
     {
         var debtDTO = await _debtService.GetSingleDebtAsync(CurrentUserId, debtId);
 
@@ -87,7 +87,7 @@ public class DebtController : ControllerBase
 
         var installmentId = debtDTO!.Installments!.Last().Id;
 
-        return CreatedAtAction(nameof(GetSingleDebtAsync), new { id = debtId }, debtDTO);
+        return CreatedAtAction("GetSingleDebtById", new { id = debtId }, debtDTO);
     }
 
     /// <summary>
@@ -105,7 +105,7 @@ public class DebtController : ControllerBase
 
         var debtDTO = await _debtService.GetSingleDebtAsync(CurrentUserId, debtId);
 
-        return CreatedAtAction(nameof(GetSingleDebtAsync), new { id = debtId }, debtDTO);
+        return CreatedAtAction("GetSingleDebtById", new { id = debtId }, debtDTO);
     }
 
     /// <summary>
