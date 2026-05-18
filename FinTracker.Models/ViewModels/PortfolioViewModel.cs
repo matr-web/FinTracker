@@ -1,4 +1,4 @@
-﻿using FinTracker.Models.DTOs.HoldingDTOs;
+﻿using FinTracker.Models.DTOs.PortfolioDTOs;
 
 namespace FinTracker.Models.ViewModels;
 
@@ -24,5 +24,5 @@ public class PortfolioViewModel
     /// </summary>
     /// <remarks>This property may return null if no holdings are available. Each HoldingDTO contains detailed
     /// information about an individual holding.</remarks>
-    public IEnumerable<HoldingDTO>? Holdings { get; set; }
+    public IEnumerable<PortfolioHoldingDTO>? Holdings { get; set; }
 }

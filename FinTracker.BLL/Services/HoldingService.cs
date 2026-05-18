@@ -1,5 +1,5 @@
-﻿using FinTracker.BLL.Services.Interfaces;
-using FinTracker.BLL.Utils;
+﻿using FinTracker.BLL.Mappers;
+using FinTracker.BLL.Services.Interfaces;
 using FinTracker.DAL.EF;
 using FinTracker.DAL.Entities;
 using FinTracker.Models.DTOs.HoldingDTOs;
@@ -11,136 +11,89 @@ public class HoldingService : IHoldingService
 {
     private readonly FinTrackerDbContext _dbContext;
     private readonly ICurrencyService _currencyService;
-    private readonly IStockService _stockService;
 
-    public HoldingService(FinTrackerDbContext dbContext, ICurrencyService currencyService, IStockService stockService)
+    public HoldingService(FinTrackerDbContext dbContext, ICurrencyService currencyService)
     {
         _dbContext = dbContext;
         _currencyService = currencyService;
-        _stockService = stockService;
     }
 
-    public async Task<HoldingDTO?> GetHoldingAsync(int Id)
+    /// <inheritdoc cref="IHoldingService.GetHoldingByIdAsync" />
+    public async Task<HoldingDTO?> GetHoldingByIdAsync(int userId, int holdingId)
     {
-        var holdingEntity = await _dbContext.Holdings
-             .FirstOrDefaultAsync(h => h.Id == Id);
-
-        if (holdingEntity == null) 
-        {
-            return null;
-        }
-
-        // Get the current stock data for the holding's ticker symbol.
-        var stockData = await _stockService.GetStockDataAsync(holdingEntity.TickerSymbol);
-
-        // Get exange rate.
-        var exchangeRate = await _currencyService.GetExchangeRateAsync(holdingEntity.CurrencyCode.ToString(), "PLN");
-
-        // Find all holdings for the user from the database.
-        var holdingsFromDb = await _dbContext.Holdings
-            .Where(h => h.UserId == holdingEntity.UserId)
-            .ToListAsync();
-
-        decimal totalPortfolioValueOfGivenUser = 0;
-
-        foreach (var holding in holdingsFromDb)
-        {
-            var holdingData = await _stockService.GetStockDataAsync(holding.TickerSymbol);
-
-            // Calculate total current value by multiplying the current stock price, current exchange rate, and quantity.
-            totalPortfolioValueOfGivenUser += (holdingData != null ? holdingData.CurrentPrice : 0)
-                * exchangeRate * holding.Quantity;
-        }
-
-        if (holdingEntity != null)
-        {
-            return new HoldingDTO
-            {
-                Id = holdingEntity.Id,
-                TickerSymbol = holdingEntity.TickerSymbol,
-                StockName = holdingEntity.StockName,
-                Quantity = holdingEntity.Quantity,
-                BuyPrice = holdingEntity.BuyPrice,
-                CurrentPrice = stockData?.CurrentPrice ?? 0,
-                CurrentHoldingValue = stockData?.CurrentPrice ?? 0 * 
-                holdingEntity.Quantity * exchangeRate,
-                CurrencyCode = holdingEntity.CurrencyCode,
-                CurrencyPriceWhenBought = holdingEntity.CurrencyPrice,
-                CurrentCurrencyPrice = exchangeRate,
-                PercentageChange = FinanceUtils.CalculatePercentageChange(holdingEntity.BuyPrice, stockData?.CurrentPrice ?? 0),
-                PercentageChangeWithCurrencyChangesCalculated =
-                    FinanceUtils.CalculatePercentageChange(holdingEntity.BuyPrice * holdingEntity.CurrencyPrice, stockData?.CurrentPrice * exchangeRate ?? 0),
-                PortfolioPercentage = ((stockData?.CurrentPrice ?? 0) *
-                holdingEntity.Quantity * exchangeRate) / totalPortfolioValueOfGivenUser * 100,
-                UserId = holdingEntity.UserId
-            };
-        }
-
-        return null;
+        return await _dbContext.Holdings
+            .Where(h => h.UserId == userId && h.Id == holdingId)
+            .Select(HoldingMapper.Projection)
+            .FirstOrDefaultAsync();
     }
 
+    /// <inheritdoc cref="IHoldingService.InsertOrUpdateHoldingAsync" />
     public async Task<int> InsertOrUpdateHoldingAsync(CreateHoldingDTO createHoldingDTO, int userId)
     {
-        // Check if this user has already a holding with the same ticker symbol and currency code for the user.
-        var currentDataOfThisHolding = await _dbContext.Holdings
+        // 1. Check if the CurrencyPrice is null, if it is, get the exchange rate for the given currency code to PLN.
+        var currentCurrencyPrice = createHoldingDTO.CurrencyPrice ??
+            await _currencyService.GetExchangeRateAsync(createHoldingDTO.CurrencyCode.ToString(), "PLN");
+
+        // 2. Check if this user has already a holding with the same ticker symbol and currency code for the user.
+        var holding = await _dbContext.Holdings
             .FirstOrDefaultAsync(h => h.UserId == userId 
             && h.TickerSymbol == createHoldingDTO.TickerSymbol
             && h.CurrencyCode == createHoldingDTO.CurrencyCode);
 
-        // Check if the CurrencyPrice is null, if it is, get the exchange rate for the given currency code to PLN
-        // and set it as the CurrencyPrice.
-        if (createHoldingDTO.CurrencyPrice == null)
+        // 3. Update the existing holding if it exists
+        if (holding != null)
         {
-            createHoldingDTO.CurrencyPrice = await _currencyService.GetExchangeRateAsync(createHoldingDTO.CurrencyCode.ToString(), "PLN");
-        }
-
-        // Update the existing holding if it exists, otherwise create a new one. 
-        if (currentDataOfThisHolding != null) {
-            // Calculate the new average buy price based on the existing quantity and buy price, and the new quantity and buy price.
-            currentDataOfThisHolding.BuyPrice = 
-                ((currentDataOfThisHolding.BuyPrice * currentDataOfThisHolding.Quantity) + 
+            // 3.1 Calculate the new average buy price based on the existing quantity and buy price, and the new quantity and buy price.
+            holding.BuyPrice = 
+                ((holding.BuyPrice * holding.Quantity) + 
                 (createHoldingDTO.BuyPrice * createHoldingDTO.Quantity)) / 
-                (currentDataOfThisHolding.Quantity + createHoldingDTO.Quantity);
-            // Calculate the new average currency price based on the existing quantity and currency price,
-            // and the new quantity and currency price.
-            currentDataOfThisHolding.CurrencyPrice =
-                ((currentDataOfThisHolding.CurrencyPrice * currentDataOfThisHolding.Quantity) +
-                ((decimal)createHoldingDTO.CurrencyPrice * createHoldingDTO.Quantity)) /
-                (currentDataOfThisHolding.Quantity + createHoldingDTO.Quantity);
+                (holding.Quantity + createHoldingDTO.Quantity);
+            // 3.2 Calculate the new average currency price based on the existing quantity,
+            // currency price, the current added quantity and current currency price.
+            holding.CurrencyPrice =
+                ((holding.CurrencyPrice * holding.Quantity) +
+                (currentCurrencyPrice * createHoldingDTO.Quantity)) /
+                (holding.Quantity + createHoldingDTO.Quantity);
 
-            currentDataOfThisHolding.Quantity += createHoldingDTO.Quantity;
+            // 3.3 Update the quantity by adding the new quantity to the existing quantity.
+            holding.Quantity += createHoldingDTO.Quantity;  
+        }
+        // 4. Insert a new holding if it does not exist.
+        else
+        {
+            // 4.1 Create a new holding entity and set its properties based on the provided DTO and the current currency price.
+            holding = new HoldingEntity
+            {
+                StockName = createHoldingDTO.StockName,
+                TickerSymbol = createHoldingDTO.TickerSymbol,
+                Quantity = createHoldingDTO.Quantity,
+                BuyPrice = createHoldingDTO.BuyPrice,
+                CurrencyCode = createHoldingDTO.CurrencyCode,
+                CurrencyPrice = currentCurrencyPrice,
+                UserId = userId
+            };
 
-            _dbContext.Holdings.Update(currentDataOfThisHolding);
-            await _dbContext.SaveChangesAsync();
-            
-            return currentDataOfThisHolding.Id;
+            await _dbContext.Holdings.AddAsync(holding);
         }
 
-        var holdingEntity = new HoldingEntity
-        {
-            StockName = createHoldingDTO.StockName,
-            TickerSymbol = createHoldingDTO.TickerSymbol, 
-            Quantity = createHoldingDTO.Quantity,
-            BuyPrice = createHoldingDTO.BuyPrice,
-            CurrencyCode = createHoldingDTO.CurrencyCode,
-            CurrencyPrice = (decimal)createHoldingDTO.CurrencyPrice,
-            UserId = userId
-        };
-
-        await _dbContext.Holdings.AddAsync(holdingEntity);
+        // 5. Save the changes to the database and return the id of the inserted or updated holding.
         await _dbContext.SaveChangesAsync();
 
-        return holdingEntity.Id;
+        return holding.Id;
     }
 
-    public async Task DeleteHoldingAsync(int holdingId)
+    /// <inheritdoc cref="IHoldingService.DeleteHoldingAsync" />
+    public async Task<bool> DeleteHoldingAsync(int userId, int holdingId)
     {
-        var obj = _dbContext.Holdings.SingleOrDefault(h => h.Id == holdingId);
+        var deletedRows = await _dbContext.Holdings
+            .Where(h => h.Id == holdingId && h.UserId == userId)
+            .ExecuteDeleteAsync();
 
-        if (obj != null)
+        if (deletedRows == 0)
         {
-            _dbContext.Holdings.Remove(obj);
-            await _dbContext.SaveChangesAsync();
+            throw new ArgumentException($"There was no holding record with given id: {holdingId}");
         }
+
+        return true;
     }
 }

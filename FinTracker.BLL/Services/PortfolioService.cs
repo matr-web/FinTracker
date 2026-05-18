@@ -67,11 +67,11 @@ public class PortfolioService : IPortfolioService
                 * holding.Quantity;
         }
 
-        var holdingsDTOs = new List<HoldingDTO>();
+        var holdingsDTOs = new List<PortfolioHoldingDTO>();
 
         foreach (var h in holdingsFromDb)
         {
-            holdingsDTOs.Add(new HoldingDTO
+            holdingsDTOs.Add(new PortfolioHoldingDTO
             {
                 Id = h.Id,
                 TickerSymbol = h.TickerSymbol,
@@ -86,7 +86,7 @@ public class PortfolioService : IPortfolioService
                 CurrentCurrencyPrice = ratesCache[h.CurrencyCode.ToString()],
                 PercentageChange = FinanceUtils.CalculatePercentageChange(h.BuyPrice, holdingsCache[h.TickerSymbol]?.CurrentPrice ?? 0),
                 PercentageChangeWithCurrencyChangesCalculated =
-                    FinanceUtils.CalculatePercentageChange(h.BuyPrice * h.CurrencyPrice, holdingsCache[h.TickerSymbol]?.CurrentPrice * h.CurrencyPrice ?? 0),
+                    FinanceUtils.CalculatePercentageChange(h.BuyPrice * h.CurrencyPrice, holdingsCache[h.TickerSymbol]?.CurrentPrice * ratesCache[h.CurrencyCode.ToString()] ?? 0),
                 PortfolioPercentage = ((holdingsCache[h.TickerSymbol]?.CurrentPrice ?? 0) *
                 h.Quantity * ratesCache[h.CurrencyCode.ToString()]) / totalCurrentValue * 100,
                 UserId = userId
