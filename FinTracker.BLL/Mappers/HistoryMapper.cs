@@ -26,7 +26,7 @@ public class HistoryMapper
         CurrencyCode = h.CurrencyCode,
         CurrencyPrice = h.CurrencyPrice,
         Description = h.Description,
-        Date = h.Date,
+        Date = h.Date, 
         Profit = h.Profit,
 
         User = h.User != null ? new UserDTO()
