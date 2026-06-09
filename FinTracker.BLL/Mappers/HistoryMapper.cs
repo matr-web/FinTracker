@@ -26,7 +26,7 @@ public class HistoryMapper
         CurrencyCode = h.CurrencyCode,
         CurrencyPrice = h.CurrencyPrice,
         Description = h.Description,
-        Date = h.Date,
+        Date = h.Date, dassa //BREAK TEST FOR THE CI!
         Profit = h.Profit,
 
         User = h.User != null ? new UserDTO()
