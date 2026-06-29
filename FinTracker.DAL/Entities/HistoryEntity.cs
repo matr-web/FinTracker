@@ -27,23 +27,4 @@ public class HistoryEntity
     public decimal? ROI => ROIBps / 100m; // 750 -> 7.5%
 }
 
-//public enum AssetType
-//{
-//    Stock,
-//    ETF,
-//    Bonds
-//}
 
-//public enum Operation
-//{
-//    Buy,
-//    Sell
-//}
-
-//public enum Currency
-//{
-//    PLN,
-//    EUR,
-//    USD,
-//    GBP
-//}
